@@ -1,0 +1,298 @@
+%%%
+%%% monroe-deliverable.sty, version 1.0 (2015-05-04)
+%%% Author: David Ros (dros@simula.no)
+%%%
+
+%%% To dos:
+%%% - most macros for reading ``values'' are probably not very useful 
+%%%   outside of this sty file, maybe remove them?
+
+
+%------------------------------------------------------------%
+%------------------------  Packages  ------------------------%
+%------------------------------------------------------------%
+
+% for specifying document margins
+%%% add showframe option to show the margins
+\usepackage[a4paper, left=2cm, right=2cm, top=3cm, bottom=3cm]{geometry}
+
+% for page headers and footers
+\usepackage{fancyhdr}
+\addtolength{\headheight}{\baselineskip} %%% we need this because we have 2-line headers
+
+% for inline comments
+\usepackage[table]{xcolor}
+
+% allow use of accented characters
+\usepackage[latin1]{inputenc}
+
+% choice of font families
+\usepackage{mathptmx}  %%% Use Times (and Symbol) for maths, not Computer Modern
+\renewcommand{\sfdefault}{phv}  %%% Helvetica as sans-serif font
+\renewcommand{\ttdefault}{pcr}  %%% Courier as fixed-width font
+\renewcommand{\rmdefault}{put}  %%% Utopia font as normal font
+%\renewcommand{\rmdefault}{ptm}  %%% Times font
+%\renewcommand{\rmdefault}{bch}  %%% Charter font
+\usepackage[scaled]{helvet}
+
+\usepackage{setspace}
+\onehalfspacing  %%% inter-line spacing of 1.5 lines
+
+% you can use \euro{} to get an euro symbol
+\usepackage{eurosym}
+
+% font encoding
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+
+% for math stuff
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% for graphic stuff
+\usepackage{graphicx}
+%%% use [H] for forcing LaTeX to insert graphics HERE
+\usepackage{float}
+\usepackage{subfig}
+%%% use \includepdf{filename} for inserting a PDF file as an annex
+\usepackage{pdfpages}
+
+% for decent-looking and/or complex tables
+\usepackage{colortbl}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+
+% for activating URLs
+\usepackage[colorlinks,linkcolor=black,citecolor=blue,urlcolor=blue]{hyperref}
+
+% for the bibliography
+\usepackage[compress]{cite}
+\usepackage{url}
+\urlstyle{tt}
+
+% for ensuring the right spacing is applied (or should be...) at the end of our macros
+\usepackage{xspace}
+
+% for getting the page count in footers
+\usepackage{lastpage}
+
+
+%------------------------------------------------------------%
+%---------------------  User commands  ----------------------%
+%------------------------------------------------------------%
+
+\newcommand*{\setproject}[2]{\def\@projacronym{#1}\def\@projname{#2}}
+
+\newcommand*{\setprojectnumber}[1]{\def\@projnum{#1}}
+
+\newcommand*{\setECcall}[1]{\def\@callnum{#1}}
+
+\newcommand*{\setprojectlogo}[2]{\def\@pathtoprojlogo{#1}\def\@projlogoscale{#2}}
+
+\newcommand*{\setEClogo}[2]{\def\@pathtoEClogo{#1}\def\@eclogoscale{#2}}
+
+\newcommand*{\setworkpackage}[2]{\def\@wpnum{#1}\def\@wpname{#2}}
+
+%\newcommand{\setdeliverable}[3]{\def\@delivnum{#1}\def\@delivname{#2}\def\@delivshortname{#3}}
+\newcommand{\setdeliverable}[3][\null]{\ifx#1\null\def\@delivshortname{#3}\def\@delivnum{#2}\def\@delivname{#3}\else\def\@delivshortname{#1}\def\@delivnum{#2}\def\@delivname{#3}\fi}
+
+\newcommand*{\setpublicdeliverable}{\def\@confidentiality{Public}\def\@shortconf{Public}}
+
+\newcommand*{\setprivatedeliverable}{\def\@confidentiality{Confidential, only for members of the consortium \newline (including the Commission Services)}\def\@shortconf{Confidential}}
+
+\def\@delivtypecode{R}  % this is the default type
+\def\@delivtype{Report} % this is the default type
+\def\@delivtypedem{dem}
+\def\@delivtypedec{dec}
+\def\@delivtypeother{other}
+
+\newcommand*{\setdeliverabletype}[2]{%
+\def\@delivtypechoice{#1}%
+\ifx\@delivtypechoice\@delivtypeother\def\@delivtypecode{OTHER}\fi%
+\ifx\@delivtypechoice\@delivtypedem\def\@delivtypecode{DEM}\fi%
+\ifx\@delivtypechoice\@delivtypedec\def\@delivtypecode{DEC}\fi%
+\def\@delivtype{#2}
+}
+
+\newcommand*{\setrevision}[2]{\def\@revision{#1}\def\@revisiondate{#2}}
+
+\newcommand{\setdeliverableauthors}[2][Contributor(s):]{\def\@delivauthorsstring{#1}\def\@delivauthors{#2}}
+
+\newcommand{\setdeliverableeditors}[1]{\def\@deliveditors{#1}}
+
+\newcommand{\deliverableabstract}[1]{\def\@abstract{#1}}
+
+\newcommand{\deliverablekeywords}[1]{\def\@keywords{#1}}
+
+
+%%% the following are for printing what was defined via the \setxxx commands,
+%%% in theory with proper handling of spacing after (but xspace is not perfect...)
+
+\newcommand{\projectacronym}{\@projacronym\xspace}
+\newcommand{\projectname}{\@projname\xspace}
+\newcommand{\projectnumber}{\@projnum\xspace}
+\newcommand{\ECcall}{\@callnum\xspace}
+\newcommand{\wpname}{\@wpname\xspace}
+\newcommand{\wpnumber}{\@wpnum\xspace}
+\newcommand{\deliverablename}{\@delivname\xspace}
+\newcommand{\deliverableshortname}{\@delivshortname\xspace}
+\newcommand{\deliverablenumber}{\@delivnum\xspace}
+\newcommand{\disseminationlevel}{\@confidentiality\xspace}
+\newcommand{\revisionnumber}{\@revision\xspace}
+\newcommand{\revisiondate}{\@revisiondate\xspace}
+\newcommand{\deliverableauthors}{\@delivauthors\xspace}
+\newcommand{\deliverableeditors}{\ifx\@deliveditors\undefined{ }\else\@deliveditors\xspace\fi}
+\newcommand{\deliverabletype}{\@delivtype\xspace}
+\newcommand{\deliverabletypecode}{\@delivtypecode\xspace}
+
+
+%------------------------------------------------------------%
+%---------------  For printing the cover page  --------------%
+%------------------------------------------------------------%
+
+%\renewcommand{\@maketitle}{
+\newcommand{\makecoverpage}{
+
+%\null\vspace*{\fill}
+
+%\framebox{
+
+%\begin{minipage}[c][22cm][s]{\textwidth}
+
+\vspace*{1cm}
+
+\sf
+
+\begin{center}
+\includegraphics[scale=\@projlogoscale]{\@pathtoprojlogo}
+
+\vspace*{1cm}
+
+\textbf{\LARGE\projectacronym}
+
+\textbf{\large\projectname}
+
+\vspace*{0.5cm}
+
+{\large\ECcall}
+
+{\large Project number: \projectnumber}
+
+\vspace*{\fill}
+
+{\Large Deliverable \deliverablenumber \\ \textbf{\deliverablename}}
+
+%\vspace*{\fill}
+%
+%{\textbf{Editor(s):} \\ \deliverableeditors}
+%
+%\vspace*{1ex}
+%
+%{\textbf{Contributor(s):} \\ \deliverableauthors}
+\end{center}
+
+\vspace*{\fill} 
+
+\singlespacing
+{
+\centering
+%\setlength{\tabcolsep}{0pt}
+\begin{tabular*}{16cm}{@{\hspace{0pt}}p{4cm}@{\hspace{0pt}}p{12cm}}
+
+\ifx\@deliveditors\undefined & \\ \else\textbf{Editor(s):} & \deliverableeditors \\\fi
+
+\textbf{\@delivauthorsstring} & \deliverableauthors \\
+
+& \\
+
+\textbf{Work Package:} & \wpnumber~/~\wpname \\
+
+\textbf{Revision:} & \revisionnumber \\
+
+\textbf{Date:} & \revisiondate \\
+
+\textbf{Deliverable type:} & \deliverabletypecode (\deliverabletype) \\
+
+\textbf{Dissemination level:} &  \disseminationlevel  \\
+\end{tabular*}
+}
+\onehalfspacing
+
+\vspace*{0.5cm}
+
+\begin{center}
+\includegraphics[scale=\@eclogoscale]{\@pathtoEClogo}
+\end{center}
+
+\rm
+
+%\end{minipage}
+
+%} % end of \framebox{}
+
+%\vspace*{\fill}
+
+} % end of \renewcommand{\@maketitle}
+
+
+%------------------------------------------------------------%
+%------------  For printing a second cover page  ------------%
+%------------------------------------------------------------%
+
+\newcommand{\makesecondcoverpage}{
+
+\null\vspace*{\fill}
+
+%\begin{center}\bf\large Abstract \normalsize\rm\end{center}
+\begin{quotation}
+\noindent \bf\large Abstract \normalsize\rm \\[1ex]
+\noindent \@abstract
+\end{quotation}
+
+\ifx\@keywords\undefined\null
+\else
+\vspace*{1ex}
+\begin{quotation}
+\noindent \bf\large Keywords \normalsize\rm \\[1ex]
+\noindent \@keywords
+\end{quotation}
+\fi
+
+\vspace*{\fill}
+
+} % \makesecondcoverpage
+
+
+%------------------------------------------------------------%
+%----------  For printing an (optional) back page  ----------%
+%------------------------------------------------------------%
+
+\newcommand{\makebackpage}{
+
+\null\vspace*{\fill}
+
+%\begin{center}\bf\large Disclaimer \normalsize\rm\end{center}
+\begin{quotation}
+\noindent \bf\large Disclaimer \normalsize\rm  \\[1ex]
+\noindent The views expressed in this document are solely those of the author(s). The European Commission is not responsible for any use that may be made of the information it contains. \\[1ex]
+\noindent All information in this document is provided ``as is'', and no guarantee or warranty is given that the information is fit for any particular purpose. The user thereof uses the information at its sole risk and liability.
+\end{quotation}
+
+\vspace*{\fill}
+}
+
+%------------------------------------------------------------%
+%------------------  Headers and footers  -------------------%
+%------------------------------------------------------------%
+
+\pagestyle{fancy}
+\lhead{\small \deliverablenumber\ \\ \deliverableshortname}
+\chead{}
+\rhead{\small \@shortconf \\ Rev.\ \revisionnumber / \@revisiondate}
+\lfoot{\includegraphics[height=4ex]{\@pathtoprojlogo}}
+\cfoot{\small \thepage\ of \pageref{LastPage}}
+\rfoot{\small Project no. \@projnum}
+\renewcommand{\headrulewidth}{0.2pt}
+\renewcommand{\footrulewidth}{0.2pt}
+
