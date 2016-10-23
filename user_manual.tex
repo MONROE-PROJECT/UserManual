@@ -506,7 +506,8 @@ The authorization process involves a manual verification step by one of the \mon
 
 Please, notice that the current policy for \monroe{} is to use one user certificate per project, shared between all the experimenters belonging to that project.
 
-Once the identity of the experimenter is approved, they will receive an email to download the certificate files.
+Once the identity of the experimenter is approved, they will receive an informative email.
+They should then log into the iMinds webpage to download the certificate files (PKCS12).
 These files must be installed in the experimenter browser.
 After that, the user should be able to access the user web directly.
 Upon request of the main (index.html) file, the browser will contact \monroe{} servers to verify that the user credentials are correct.
@@ -514,7 +515,7 @@ In the case of any problems, the user will be presented with instructions on how
 If the client certificate is verified successfully, they will be automatically redirected to the listing of their experiments.
 
 \textbf{NOTE:} User certificates are manually activated in the scheduling software.
-To use your certificate, please send its ``ssl\_id'' to one of the \monroe{} administrators.
+To use your certificate, please send its ``ssl\_id'' to one of the \monroe{} administrators (e.g., \url{mailto:mikepeon@imdea.org}).
 You may find it in the screen after pressing the ``Try me'' button, once the certificate is correctly installed in your browser:
 {\VerbatimFont\begin{verbatim}
 {
