@@ -764,8 +764,8 @@ For example, the standard ``ping'' tool can be forced to use an specific interfa
 To offer a consistent view of the platform resources, whereas allowing flexibility for future changes in the platform configuration, the following naming scheme is used for each of the interfaces available for the experiments:
 \begin{enumerate*}
 	\item [\textbf{op0}:] First operator for the nodes in the given country.%First SIM card for the node.
-	\item [\textbf{op1}:] First operator for the nodes in the given country.%Second SIM card for the node.
-	\item [\textbf{op2}:] First operator for the nodes in the given country.%Third SIM card for the node.
+	\item [\textbf{op1}:] Second operator for the nodes in the given country.%Second SIM card for the node.
+	\item [\textbf{op2}:] Third operator for the nodes in the given country.%Third SIM card for the node.
 	\item [\textbf{eth0}:] Ethernet (wired) network connection, when available.
 \end{enumerate*}
 %For a given country, the platform guarantees that a given SIM card index does always correspond to the same operator, unless a change of operators is performed at some future point.
@@ -1754,8 +1754,6 @@ zlib1g:amd64	&	1:1.2.8.dfsg-2+b1	&	amd64	&	compression library - runtime	\\
 	\end{longtable}
 }
 
-\end{appendices}
-
 
 %------------------------------------------------------------%
 \section{How to map container folders to Windows paths}
@@ -1781,6 +1779,7 @@ Before being able to access Windows (host) folders from a container, the drive h
 \end{enumerate}
 
 
+\end{appendices}
 %------------------------------------------------------------%
 
 %\bibliographystyle{plain}
