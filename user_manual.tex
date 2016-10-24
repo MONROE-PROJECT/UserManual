@@ -1526,6 +1526,9 @@ zlib1g:amd64	&	1:1.2.8.dfsg-2+b1	&	amd64	&	compression library - runtime	\\
 \section{Description of metadata fields}
 \label{app:metadataFields}
 
+%An updated description of metadata topics and fields is kept in the following link:
+%\url{}
+
 {\scriptsize
 \begin{longtable}{p{3cm}p{12cm}}
 	\caption{Field description for metadata topic ``MONROE.META.DEVICE.MODEM''.}\label{tab:metaDeviceModem}\\
@@ -1538,11 +1541,12 @@ zlib1g:amd64	&	1:1.2.8.dfsg-2+b1	&	amd64	&	compression library - runtime	\\
 	\endhead
 	%
 	NodeId & Node numerical ID.\\
-	Timestamp & Entry timestamp (in milliseconds since UNIX epoch).\\
+	Timestamp & Entry timestamp (in seconds since UNIX epoch).\\
 	DataId & Metadata topic.\\
 	DataVersion & Set to \num{1}.\\
 	SequenceNumber & Monotonically increasing message counter.\\
 	InterfaceName & Name of the interface in the \monroe{} node, e.g., ``usb0'', ``usb1'', ``usb2'', ``eth0'', \ldots\\
+	InternalInterface & Name of the interface inside the containers, e.g., ``op0'', ``op1'', ``op2'', ``eth0'', ``wlan0'', \ldots Experiments in containers have to bind to these interface names.\\
 	Cid & Cell ID.\\
 	DeviceMode & Connection mode of the modem (e.g., 2G, 3G, LTE) indicating the radio access technology the modem uses.\\
 	DeviceSubmode & Connection submode for 3G connections (e.g., CDMA, WCDMA, UMTS).\\
@@ -1583,7 +1587,7 @@ zlib1g:amd64	&	1:1.2.8.dfsg-2+b1	&	amd64	&	compression library - runtime	\\
 		\endhead
 		%
 		NodeId & Node numerical ID.\\
-		Timestamp & Entry timestamp (in milliseconds since UNIX epoch).\\
+		Timestamp & Entry timestamp (in seconds since UNIX epoch).\\
 		DataId & Metadata topic.\\
 		DataVersion & Set to \num{1}.\\
 		SequenceNumber & Monotonically increasing message counter.\\		
@@ -1609,12 +1613,12 @@ zlib1g:amd64	&	1:1.2.8.dfsg-2+b1	&	amd64	&	compression library - runtime	\\
 		\endhead
 		%
 		NodeId & Node numerical ID.\\
-		Timestamp           & Entry timestamp (in milliseconds since UNIX epoch).\\
+		Timestamp           & Entry timestamp (in seconds since UNIX epoch).\\
 		DataId              & Metadata topic.\\
 		DataVersion         & Set to \num{1}.\\
 		SequenceNumber      & Monotonically increasing message counter.\\
 		Iccid               & Internationally defined integrated circuit card identifier of the SIM card.\\
-		InterfaceName       & Name of the interface in the \monroe{} node, e.g., ``usb0'', ``usb1'', ``usb2'', ``eth0'', \ldots\\
+		InterfaceName       & Name of the interface in the \monroe{} node (outside containers), e.g., ``usb0'', ``usb1'', ``usb2'', ``eth0'', \ldots\\
 		MccMnc              & Mobile Country Code (MCC) and Mobile Network Code (MNC).\\
 		Mode                & The connection mode: UNKNOWN (1),  DISCONNECTED (2),  NO SERVICE (3), 2G (4), 3G (5), LTE (6).\\
 		Rssi                & Signal strength.\\
@@ -1634,7 +1638,7 @@ zlib1g:amd64	&	1:1.2.8.dfsg-2+b1	&	amd64	&	compression library - runtime	\\
 		\endhead
 		%
 		NodeId                  & Node numerical ID.\\
-		Timestamp               & Entry timestamp (in milliseconds since UNIX epoch).\\
+		Timestamp               & Entry timestamp (in seconds since UNIX epoch).\\
 		DataId                  & Metadata topic.\\
 		DataVersion             & Set to \num{1}.\\
 		SequenceNumber          & Monotonically increasing message counter.\\
@@ -1682,7 +1686,7 @@ zlib1g:amd64	&	1:1.2.8.dfsg-2+b1	&	amd64	&	compression library - runtime	\\
 		\endhead
 		%
 		NodeId              & Node numerical ID.\\
-		Timestamp           & Entry timestamp (in milliseconds since UNIX epoch).\\
+		Timestamp           & Entry timestamp (in seconds since UNIX epoch).\\
 		DataId              & Metadata topic.\\
 		DataVersion         & Set to \num{1}.\\
 		SequenceNumber      & Monotonically increasing message counter.\\		
@@ -1712,7 +1716,7 @@ zlib1g:amd64	&	1:1.2.8.dfsg-2+b1	&	amd64	&	compression library - runtime	\\
 		%
 		NodeId          & Node numerical ID.\\
 		Guid            & Unique experiment identifier.\\
-		Timestamp       & Entry timestamp (in milliseconds since UNIX epoch).\\
+		Timestamp       & Entry timestamp (in seconds since UNIX epoch).\\
 		SequenceNumber  & Monotonically increasing message counter.\\
 		DataId          & Metadata topic.\\
 		DataVersion     & Set to \num{1}.\\
@@ -1738,7 +1742,7 @@ zlib1g:amd64	&	1:1.2.8.dfsg-2+b1	&	amd64	&	compression library - runtime	\\
 		%
 		NodeId          & Node numerical ID.\\
 		Guid            & Unique experiment identifier.\\
-		Timestamp       & Entry timestamp (in milliseconds since UNIX epoch).\\
+		Timestamp       & Entry timestamp (in fractional seconds since UNIX epoch).\\
 		SequenceNumber  & Monotonically increasing message counter.\\
 		DataId          & Metadata topic.\\
 		DataVersion     & Set to \num{1}.\\		
