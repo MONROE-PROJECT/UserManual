@@ -993,6 +993,82 @@ Metadata and internal experiment results follow a JSON structure, as detailed in
 	\end{center}
 \end{table}
 
+
+
+\subsection{Tstat at run-time}
+\label{subsec:tsattRunTime}
+The Tstat (\url{http://www.tstat.polito.it/}) \textbf{runs} on all nodes in the mPlane container as one of the basic MONROE containers. The Tstat is a passive probe able to provide several insight on the traffic patterns at both the network and the transport levels. The Tstat generates two different types of logs. 
+
+\subsubsection{Tstat Round Robin Database}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{TstatRRDGUI.png}
+	\caption{Graphite GUI of the Tstat RRD logs.}
+	\label{fig:TstatRRDGUI}
+\end{figure}
+
+The RRD (Round Robin Database) logs is an average of samples of each packet in 5 minutes, it imposes at least 5 minutes delay to visualize RRDs. The detail description of the RRD logs is available on Tstat documentation(\url{http://tstat.polito.it/HOWTO.shtml#RRD}). RRD are available via the (\url{http://monroe-repository.polito.it:8080/}) and the Graphite GUI provides some tool to present RRD logs and save the interested plots. Fig.~\ref{fig:TstatRRDGUI} shows the bit rate of the ICMP packet for the node \#38 on interface \textit{op0} over the last 24 hours. 
+There is possibility to create a dashboard to monitor the experiments and interfaces' status. Fig.~\ref{fig:TStatGraphitedashboard} illustrates an example of saved dashboard to monitor the volume of traffic on one node. 
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{TStatGraphitedashboard.png}
+	\caption{An example of dashboard on Tstat RRD GUI.}
+	\label{fig:TStatGraphitedashboard}
+\end{figure}
+
+
+\subsubsection{Tstat logs}
+Tstat generates detailed flow level logs for TCP, UDP, and HTTP flows. These are text file with more than 100 metrics, containing information about the client and server addresses, network and application level metrics, and DNS queries. The description of the metrics presents (\url{http://tstat.polito.it/measure.shtml#LOG}).
+In MONROE, the Tstat configure to generate 4 different logs as following:
+
+\begin{table}[h]
+	\caption{Tstat log types.}\label{tab:Tstatlogs}
+	\begin{center}
+	\begin{tabular}{ll}
+		\toprule
+		\textbf{TYPE} & \textbf{DESCRIPTION} \\
+		\midrule
+		log\_tcp\_complete & Every TCP connection that has been tracked \\
+		log\_tcp\_nocomplete	& All the connections for which the three way handshake is not properly seen \\
+		log\_udp\_complete & Every tracked UDP flow pair \\
+		log\_http\_complete & Information from every HTTP request and response \\
+			\bottomrule
+	\end{tabular}
+	\end{center}
+\end{table}
+    
+Logs are available in two ways, 
+\begin{itemize}
+\item[1.] Real time access on the node, logs for the last three generated are shared with MONROE experimenters on the "/monroe/tstat", it helps the MONROE users to use passive traces collected by Tstat during their experiment. the three logs can cover at most last three hours.
+\item[2.] On demand, all logs are imported into MONROE database for all node. The schema of the tables are available on github (\url{https://github.com/MONROE-PROJECT/Database/blob/master/db_schema.cql}). Three columns, (NodeId,Iccid,DataId) added to each table bring the possibility to join with metadata and collected data. 
+\end{itemize}
+
+It is recommended to check the description of the logs on (\url{http://tstat.polito.it/measure.shtml#LOG}).  Figures~\ref{fig:TStattcp},\ref{fig:TStattcprtt},\ref{fig:TStathttp}  present the table describing of some interesting metrics in tcp and http logs.
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{tcpcomplete.png}
+	\caption{Core TCP Set.}
+	\label{fig:TStattcp}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{tcprtt.png}
+	\caption{TCP End to End Set.}
+	\label{fig:TStattcprtt}
+\end{figure}
+
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=0.7\textwidth]{httpcomplete.png}
+	\caption{Core HTTP Set.}
+	\label{fig:TStathttp}
+\end{figure}
+
+
 %------------------------------------------------------------%
 
 \section{Node status}
@@ -1000,7 +1076,7 @@ Metadata and internal experiment results follow a JSON structure, as detailed in
 
 The user can check the state of the nodes under the tab ``Resources.'' Figure~\ref{fig:Resources} shows an example of the information that is supplied.
 
-\begin{figure}[tp]
+\begin{figure}[h]
 	\centering
 	\includegraphics[width=1\textwidth]{Resources.png}
 	\caption{Status of the \monroe{} nodes.}
