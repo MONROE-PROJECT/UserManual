@@ -65,7 +65,7 @@
 
 %%% use line breaks (\newline, NOT \\) as needed to ensure proper formatting of the author list
 %%% the optional parameter (between []) is an alternative to "Contributor(s)", if desired
-\setdeliverableauthors{Miguel Pe\'{o}n-Quir\'{o}s, Thomas Hirsch}
+\setdeliverableauthors{Miguel Pe\'{o}n-Quir\'{o}s, Thomas Hirsch, Ali Safari Khatouni}
 
 
 %%% use line breaks (\newline, NOT \\) as needed to ensure proper formatting of the editor list
@@ -692,22 +692,37 @@ However, the scheduler will try to stop experiments that have already started, b
 Clicking on any experiment displays the details for its individual schedules at the bottom of the page.
 There, the number of schedules that are defined but not yet deployed, the ones that are deployed and ready to be started, the ones that are currently running, etc., is summarized.
 One line is presented for each individual schedule on each \monroe{} node.
-The following list explains the meaning of the states in which an individual task may be:
-\begin{description*}
-	\item [\textbf{Finished}:] The task was correctly executed and it finished on its own before consuming the complete time slot. 
-	\item [\textbf{Stopped}:] The task was correctly executed, but it was stopped by the scheduler at the end of the execution slot (see note below).
-	\item [\textbf{Failed}:] The task stopped abnormally.
-	\item [\textbf{Canceled}:] The task was cancelled by the user before being started.
-	\item [\textbf{Aborted}:] The task was aborted by the user after being started.
-	\item [\textbf{Defined}:] The task is known to the scheduler.
-	\item [\textbf{Deployed}:] The corresponding node has already deployed the container and is waiting for its starting time.
-	\item [\textbf{Started}:] The container is running in the designated node. The ``download'' link for the task results is already available.
-\end{description*}
+Table~\ref{tab:experimentStates} explains the states in which an individual task may be.
+
+\begin{table}[tp]
+	\caption{Experiment states}\label{tab:experimentStates}
+	\begin{center}
+		\begin{tabular*}{1\textwidth}{p{0.15\textwidth}p{0.8\textwidth}}
+			\toprule
+			\textbf{STATE} & \textbf{DESCRIPTION} \\ \midrule
+			\multicolumn{2}{l}{\textbf{(Ongoing states)}}\\~\\
+			\textcolor{blue}{Defined} & The experiment is created in the scheduler. If a task remains in this state past its starting time, the node was probably shut down and the task will not be executed anymore.\\
+			\textcolor{blue}{Requested} & The node has requested the container and is deploying it.\\
+			\textcolor{blue}{Deployed} & The node has already deployed the container and is waiting for its starting time.\\
+			\textcolor{blue}{Delayed} & The scheduling process failed temporarily.\\
+			\textcolor{blue}{Started} & The container is being executed in the designated node. The ``download'' link for the task results is already available.\\
+			\textcolor{blue}{Restarted} & The node has restarted the experiment after a node failure.\\~\\
+			\midrule
+			\multicolumn{2}{l}{\textbf{(Final states)}}\\~\\
+			\textcolor{green}{Finished} & The task was correctly executed and it finished on its own before consuming the complete time slot.\\
+			\textcolor{green}{Stopped} & The task was correctly executed, but it was stopped by the scheduler at the end of the execution slot (correct for tasks designed to remain in execution until the end of their time slot).\\
+			\textcolor{red}{Failed} & The task stopped abnormally.\\
+			\textcolor{red}{Canceled} & The task was canceled by the user before being started (but other tasks in the experiment were already started).\\
+			\textcolor{red}{Aborted} & The task was aborted by the user after being started.\\
+			\bottomrule
+		\end{tabular*}
+	\end{center}
+\end {table}
 
 Some experiments may be designed to finish after completion.
 For those ones, the correct finishing state is ``Finished.''
 If they are stopped by the scheduler, they probably exceeded the execution time foreseen by the experimenter.
-However, some experiments may be designed to run continuously for a period of time.
+However, other experiments may be designed to run continuously for a period of time.
 In those cases, the ``Stopped'' state could actually be the correct ending state as intended by the experimenter.
 
 %------------------------------------------------------------%
