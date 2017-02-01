@@ -975,9 +975,9 @@ The following and some examples of the information received in the metadata stre
 \end{itemize}
 
 \subsubsection{Metadata format}
-Metadata and internal experiment results follow a JSON structure, as detailed in \url{https://secure.mlab.no/monroewiki/doku.php?id=dataformat}~:
+Metadata and internal experiment results follow a JSON structure, as detailed in \url{https://github.com/MONROE-PROJECT/Experiments/wiki}~:
 \begin{itemize*}
-	\item All Metadata messages have a topic according to Table~\ref{tab:metadataTopics} (\url{https://secure.mlab.no/monroewiki/doku.php?id=metadataformat}). Appendix~\ref{app:metadataFields} gives the complete description of the meaning of all the metadata fields.
+	\item All Metadata messages have a topic according to Table~\ref{tab:metadataTopics}. Appendix~\ref{app:metadataFields} gives the complete description of the meaning of all the metadata fields.
 	\item All metadata topics are prefixed with ``MONROE.META.''
 	\item All internal experiments are prefixed with ``MONROE.EXP.''
 	\item Experiments receive metadata messages only for topics to which they subscribe.
@@ -1685,7 +1685,7 @@ zlib1g:amd64	&	1:1.2.8.dfsg-2+b1	&	amd64	&	compression library - runtime	\\
 		Longitude & Decimal degrees (WGS84).\\
 		Latitude & Decimal degrees (WGS84).\\
 		Altitude & Meters AMSL.\\
-		Speed & Speed over ground (knots).\\
+		Speed & Speed over ground (knots; multiply by \num{1852} to get \SI{}{\kilo\meter\per\hour}).\\
 		SatelliteCount & Number of satellites being tracked.\\
 		Nmea & Raw NMEA string from the GPS receiver.\\
 		\bottomrule
