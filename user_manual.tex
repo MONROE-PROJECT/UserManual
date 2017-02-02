@@ -11,6 +11,7 @@
 \usepackage{mdwlist}		% Defines itemize*, enumerate* y description*, which have less vertical spacing.
 \newcommand{\VerbatimFont}{\footnotesize}
 \newcommand{\TableFont}{\footnotesize}
+\overfullrule=35pt % Remove this in the final version!!!
 
 %%% ALL figures MUST be inside the ``figures'' folder
 %%% ``standard'' figures (like logos) are in the common ``templates/figures'' folder
@@ -71,7 +72,7 @@
 
 %%% use line breaks (\newline, NOT \\) as needed to ensure proper formatting of the editor list
 %%% can be omitted if desired
-\setdeliverableeditors{\"Ozg\"u Alay, Vincenzo Mancuso}
+\setdeliverableeditors{Miguel Pe\'{o}n-Quir\'{o}s, \"Ozg\"u Alay, Vincenzo Mancuso}
 
 
 %-------------------------------------------------------------%
@@ -160,6 +161,8 @@ POLITECNICO DI TORINO & POLITO \\
 %\newpage
 
 %------------------------------------------------------------%
+%------------------------------------------------------------%
+%------------------------------------------------------------%
 
 \section{Introduction}
 \label{sec:intro}
@@ -211,6 +214,8 @@ Finaly, the experimenter is free to schedule the experiment container on any nod
 \end{figure}
 
 
+%------------------------------------------------------------%
+%------------------------------------------------------------%
 %------------------------------------------------------------%
 
 \section{Experiment preparation}
@@ -489,6 +494,8 @@ The nodes will fetch the container image from the Docker repository, and the siz
 Notice that in the case of periodic experiments, each time an experiment is run, the Docker container will possibly be re-downloaded and its costs will be accounted in your quota.
 
 %------------------------------------------------------------%
+%------------------------------------------------------------%
+%------------------------------------------------------------%
 
 \section{Resource allocation, and experiment scheduling and monitoring}
 \label{sec:allocSchedMonitor}
@@ -498,7 +505,9 @@ Once a experiment is configured as a Docker container, it can be scheduled multi
 \subsection{User login and certificates}
 \label{subsec:login}
 User identification in \monroe{} is achieved through client certificates.
-Every experimenter has their own certificate compatible with the FED4FIRE\footnote{\url{http://www.fed4fire.eu/}} federation.
+Every experimenter has their own certificate compatible with the FED4FIRE%
+\footnote{\url{http://www.fed4fire.eu/}} %
+federation.
 User certificates are issued by iMinds through the following URL: \url{https://authority.ilabt.iminds.be/}.
 New users must create a new account (``sign up'').
 Be sure to select the option ``Join Existing Project'' and type the name ``Monroe'' in the project name field (Figure~\ref{fig:iMindsCreateAccount}).
@@ -733,13 +742,20 @@ However, other experiments may be designed to run continuously for a period of t
 In those cases, the ``Stopped'' state could actually be the correct ending state as intended by the experimenter.
 
 %------------------------------------------------------------%
+%------------------------------------------------------------%
+%------------------------------------------------------------%
 
-\section{Retrieval of experiment results from \monroe{}'s repository}
+\section{Retrieval of metadata and experiment results}
 \label{sec:resultRetrieval}
+
+\monroe{} repositories contain two types of data: \monroe{} metadata itself and the results of user experiments.
+
+%------------------------------------------------------------%
+\subsection{User experiment results}
 
 Any files written during the experiment to the \identifier{/monroe/results} directory will be synchronized to the experiment repository.
 This operation happens continuously during experiment execution and then upon its finalization.
-Therefore, it is advisable that only final files ready to be transferred are copied to that location to avoid the system to sync temporary files and consume your quota or produce invalid results.
+Therefore, it is advisable that only final files ready to be transferred are copied (indeed, mv'ed) to that location to avoid the system to sync temporary files and consume your quota or produce invalid results.
 
 The result files can be accessed through the user interface:
 For experiments that have already been started, the interface presents a link under the column ``Results'' that redirects the user to the HTTP folder (Figure~\ref{fig:ResultsRetrieval}) that contains the files that have already been synchronized from the node where the experiment runs to the repository.
@@ -750,10 +766,39 @@ In this way, the experimenter can retrieve result files even for partial experim
 	\includegraphics[width=0.7\textwidth]{ResultsRetrieval.png}
 	\caption{Folder containing the results of an individual schedule, transferred to \monroe{}'s servers.}
 	\label{fig:ResultsRetrieval}
-\end{figure}
+	\end{figure}
 
-In addition, the experiment may use the network functionalities to communicate with any outside servers as needed (e.g., scp some files to an external server).
+In addition, the experiment may use any network functionalities to communicate with outside servers as needed (e.g., \identifier{scp} some files to an external server).
+In order to guarantee a better privacy, private keys should be restricted to the experiments and discarded after a reasonable time.
+Additionally, instead of saving your keys in the container itself, you may want to pass them as additional options during experiment scheduling.
+The values will be available during container execution as a JSON file at \identifier{/monroe/config}.
+Notice that this file is created by the node scheduler.
+The same effect is achievable manually when the containers are run manually in user development nodes adding the \identifier{-v} option to the command line.
+To map both a locally created config file and the results folder of the container to a node folder, in development nodes without a scheduler, the following command line fragment may be used:\footnote{Thanks to Eneko Atxutegi Narbona and Jonas Karlsson for pointing this out.}
+\begin{verbatim}
+-v /monroe/results:/monroe/results -v /monroe/config:/monroe/config:ro
+\end{verbatim}
 
+%------------------------------------------------------------%
+\subsection{\monroe{} metadata}
+
+\monroe{} metadata can be freely accessed by two means.
+First, a CSV dump of all database tables is generated daily.
+The files can be accessed at the following URL (a valid user certificate is needed): \url{https://www.monroe-system.eu/user/dailyDumps/}.
+The dump files should be available every day after 12:00 CET (24-hour format).
+Each file covers the period [00:00, 00:00) GMT.
+
+Our servers run on CET time, but metadata timestamps, and thus CSV filenames, use GMT. Thus, to cover ``a day'' of metadata using, e.g., the local time in Norway, two CSV files need to be combined.
+During Winter time, the needed metadata is in the period [day$_0$:01:00, day$_1$:01:00).
+During Summer time, the needed metadata is in the period [day$_0$:02:00, day$_1$:02:00).
+
+Alternatively, metadata can be accessed directly in a replica of \monroe{}'s Cassandra database, which is updated daily approximately at noon with the data from the previous (GMT) day.
+Access credentials for this server will be provided as requested.
+\monroe{} repositories include several examples on how to access the database.
+
+
+%------------------------------------------------------------%
+%------------------------------------------------------------%
 %------------------------------------------------------------%
 
 \section{Run-time considerations for experimenters}
@@ -761,6 +806,7 @@ In addition, the experiment may use the network functionalities to communicate w
 
 This section discusses several considerations that experimenters must take into account when designing and running their experiments on the \monroe{} platform.
 
+%------------------------------------------------------------%
 \subsection{Communication during the experiment}
 \label{subsec:communicationDuringExperiment}
 
@@ -770,6 +816,7 @@ The user can choose to bind explicitly from each command or application to a spe
 	route add default gw 172.16.0.1 eth0
 \end{verbatim}}
 
+%------------------------------------------------------------%
 \subsection{Interface naming and binding, and default route}
 \label{subsec:interfaceNaming}
 
@@ -816,7 +863,7 @@ Even if it reappears soon after, any existing network connections on the old int
 It is also possible to skip steps 1 and 2 when reconnecting to an interface after a failure, as the interface name corresponding to the desired operator is already known.
 It is still necessary to keep retrying to connect to the interface, until it comes up.
 
-
+%------------------------------------------------------------%
 \subsection{Metadata at run-time}
 \label{subsec:metadataRunTime}
 
@@ -862,7 +909,7 @@ while True:
 \end{verbatim}
 }
 
-
+%------------------------------------------------------------%
 \subsubsection{Example: Correlate experiment results with metadata at run-time}
 
 The following example shows how to create an application that executes a ping to an external machine and saves the results alongside the node location:
@@ -923,6 +970,7 @@ while line:
 \end{verbatim}
 }
  
+%------------------------------------------------------------%
 \subsubsection{Metadata information}
 
 Currently, the collected metadata includes:
@@ -981,6 +1029,7 @@ The following and some examples of the information received in the metadata stre
 	
 \end{itemize}
 
+%------------------------------------------------------------%
 \subsubsection{Metadata format}
 Metadata and internal experiment results follow a JSON structure, as detailed in \url{https://github.com/MONROE-PROJECT/Experiments/wiki}~:
 \begin{itemize*}
@@ -1015,8 +1064,7 @@ Metadata and internal experiment results follow a JSON structure, as detailed in
 	\end{center}
 \end{table}
 
-
-
+%------------------------------------------------------------%
 \subsection{Tstat at run-time}
 \label{subsec:tsattRunTime}
 The Tstat (\url{http://www.tstat.polito.it/}) \textbf{runs} on all nodes in the mPlane container as one of the basic MONROE containers. The Tstat is a passive probe able to provide several insight on the traffic patterns at both the network and the transport levels. The Tstat generates two different types of logs. 
@@ -1025,7 +1073,7 @@ The Tstat (\url{http://www.tstat.polito.it/}) \textbf{runs} on all nodes in the 
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.7\textwidth]{TstatRRDGUI.png}
+	\includegraphics[width=1\textwidth]{TstatRRDGUI.png}
 	\caption{Graphite GUI of the Tstat RRD logs.}
 	\label{fig:TstatRRDGUI}
 \end{figure}
@@ -1035,7 +1083,7 @@ There is possibility to create a dashboard to monitor the experiments and interf
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.7\textwidth]{TStatGraphitedashboard.png}
+	\includegraphics[width=1.0\textwidth]{TStatGraphitedashboard.png}
 	\caption{An example of dashboard on Tstat RRD GUI.}
 	\label{fig:TStatGraphitedashboard}
 \end{figure}
@@ -1063,7 +1111,7 @@ In MONROE, the Tstat configure to generate 4 different logs as following:
     
 Logs are available in two ways, 
 \begin{itemize}
-\item[1.] Real time access on the node, logs for the last three generated are shared with MONROE experimenters on the "/monroe/tstat", it helps the MONROE users to use passive traces collected by Tstat during their experiment. the three logs can cover at most last three hours.
+\item[1.] Real time access on the node, logs for the last three generated are shared with MONROE experimenters on the "/monroe/tstat", it helps the MONROE users to use passive traces collected by Tstat during their experiment. The three logs can cover at most the last three hours.
 \item[2.] On demand, all logs are imported into MONROE database for all node. The schema of the tables are available on github (\url{https://github.com/MONROE-PROJECT/Database/blob/master/db_schema.cql}). Three columns, (NodeId,Iccid,DataId) added to each table bring the possibility to join with metadata and collected data. 
 \end{itemize}
 
@@ -1171,10 +1219,72 @@ It is recommended to check the description of the logs on (\url{http://tstat.pol
 	}
 \end {table}
 
+%------------------------------------------------------------%
+\subsection{Access to user-owned development nodes}
+
+This section refers to development nodes owned by external users under the dispositions of their specific \monroe{} agreement.
+Two options are possible for the management of those nodes:
+\begin{enumerate*}
+	\item The nodes join the pool of \monroe{} nodes.
+	Experiments are scheduled through the \monroe{} scheduler and users, including the node owners, do not have direct SSH access to them.
+	The metadata produced by these nodes will join the rest of the \monroe{} databases.
+	\item The nodes are considered ``development nodes'' for private use of their owners.
+	In that case, they will not join the \monroe{} platform and will not be accessible through the \monroe{} scheduler, neither for their owners nor for other users.
+	The nodes will be marked as ``storage'' or ``development.''
+	Thus, users (again, only their owners) must log locally into the nodes to manually schedule their containers using Docker commands.
+	The nodes will not run the base experiments; no metadata, or any other information produced by them will join the \monroe{} databases.
+\end{enumerate*}
+
+In essence, ``managed'' nodes are part of the testbed and work as any other ones, whereas ``development'' nodes are for private use of their owners.
+The following paragraphs provide relevant information for the use of development nodes.
+
+\subsubsection{Accessing user-owned development nodes}
+Development nodes can be accessed either through the management interface (the black wire connected to eth2) via SSH, or directly via the serial console (DB9 connector, using a null-modem cable).
+The necessary passwords will be provided on request through a secure channel.
+Table~\ref{tab:developmentNodeUsers} explains the uses of each available user.
+
+\begin{table}[tp]
+	\caption{Node users}\label{tab:developmentNodeUsers}
+	\begin{center}
+		\begin{tabular}{llll}
+			\toprule
+			\textbf{USER} & \textbf{PASSWORD} & \textbf{SUDO} & \textbf{USES} \\ \midrule
+			monroe & \emph{[redacted]} & reboot & maintenance, troubleshooting \\
+			monroeSA & \emph{[redacted]} & yes & administration, development \\
+			\bottomrule
+		\end{tabular}
+	\end{center}
+\end {table}
+
+Do not distribute passwords or keys to unauthorized personnel.
+Do not send passwords or keys over insecure channels.
+Use of the administrator user 'monroeSA' is allowed only for development on local nodes, unless granted permission to perform a specific task requiring this user.
+Creation of user accounts on nodes is forbidden.
+Modifying user accounts on nodes is forbidden.
+Modifying \identifier{authorized\_keys} on nodes is forbidden.
+Be VERY careful if you change any firewall settings, and only do this on development nodes.
+Be smart.
+
+Local access, which allows password authentication, can be achieved through the serial port and the management interface.
+
+The APU's third ethernet port (eth2), nearest the USB ports, has the IP address 172.16.254.1/24.
+The node can be accessed setting a static IP address in the 172.16.254.0/24 network span (e.g., 172.16.254.2) on the developer side of the link and establishing an SSH connection.
+
+The DB-9 serial port (console) allows direct terminal access.
+The boot process and grub menu are visible and interactive through this connection; some kernel messages will be printed as well while connected.
+Connecting to the console port requires a \textbf{null modem} cable.
+In the following examples, \identifier{/dev/ttyS0} has to be substituted with the device path for the developer's cable.
+A typical case for USB-to-serial adapters is \identifier{/dev/ttyUSB0}:
+\begin{verbatim}
+minicom -D /dev/ttyS0          ---or---          screen /dev/ttyS0 115200
+\end{verbatim}
+
 
 %------------------------------------------------------------%
+%------------------------------------------------------------%
+%------------------------------------------------------------%
 
-\section{Node status}
+\section{Monitoring node status}
 \label{subsec:nodeStatus}
 
 The user can check the state of the nodes under the tab ``Resources.'' Figure~\ref{fig:Resources} shows an example of the information that is supplied.
@@ -1187,6 +1297,8 @@ The user can check the state of the nodes under the tab ``Resources.'' Figure~\r
 \end{figure}
 
 %------------------------------------------------------------%
+%------------------------------------------------------------%
+%------------------------------------------------------------%
 
 \section{List of known bugs and issues}
 
@@ -1198,6 +1310,8 @@ The user can check the state of the nodes under the tab ``Resources.'' Figure~\r
 	\item Checking the option ``ASAP'' to schedule an experiment as soon as possible may fail due to lack of time to deploy the container. The system does add some slack in this case, but its length may need some adjustment according to the type of nodes and MBB characteristics.
 \end{itemize}
 
+%------------------------------------------------------------%
+%------------------------------------------------------------%
 %------------------------------------------------------------%
 
 \begin{appendices}
@@ -1702,6 +1816,9 @@ zlib1g:amd64	&	1:1.2.8.dfsg-2+b1	&	amd64	&	compression library - runtime	\\
 
 
 %------------------------------------------------------------%
+%------------------------------------------------------------%
+%------------------------------------------------------------%
+
 \section{Description of metadata fields}
 \label{app:metadataFields}
 
@@ -1940,6 +2057,9 @@ zlib1g:amd64	&	1:1.2.8.dfsg-2+b1	&	amd64	&	compression library - runtime	\\
 
 
 %------------------------------------------------------------%
+%------------------------------------------------------------%
+%------------------------------------------------------------%
+
 \section{How to map container folders to Windows paths}
 \label{app:mapCotainerPathsWindows}
 
