@@ -10,6 +10,7 @@
 \usepackage{longtable}
 \usepackage{mdwlist}		% Defines itemize*, enumerate* y description*, which have less vertical spacing.
 \newcommand{\VerbatimFont}{\footnotesize}
+\newcommand{\TableFont}{\footnotesize}
 
 %%% ALL figures MUST be inside the ``figures'' folder
 %%% ``standard'' figures (like logos) are in the common ``templates/figures'' folder
@@ -85,6 +86,12 @@
 \newcommand{\monroe}{MONROE}
 % Style for identifiers such as "main()" or file names:
 \newcommand{\identifier}[1]{{\texttt{\small{#1}}}}
+
+\definecolor{PalePink}{rgb}{1, 0.8, 1}
+\definecolor{BrightYellow}{rgb}{1, 1, 0}
+\definecolor{LightGreen}{rgb}{0.8, 1, 0.733}
+\definecolor{LightYellow}{rgb}{1, 1, 0.733}
+
 
 
 
@@ -1060,28 +1067,109 @@ Logs are available in two ways,
 \item[2.] On demand, all logs are imported into MONROE database for all node. The schema of the tables are available on github (\url{https://github.com/MONROE-PROJECT/Database/blob/master/db_schema.cql}). Three columns, (NodeId,Iccid,DataId) added to each table bring the possibility to join with metadata and collected data. 
 \end{itemize}
 
-It is recommended to check the description of the logs on (\url{http://tstat.polito.it/measure.shtml#LOG}).  Figures~\ref{fig:TStattcp},\ref{fig:TStattcprtt},\ref{fig:TStathttp}  present the table describing of some interesting metrics in tcp and http logs.
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.7\textwidth]{tcpcomplete.png}
-	\caption{Core TCP Set.}
-	\label{fig:TStattcp}
-\end{figure}
+It is recommended to check the description of the logs on (\url{http://tstat.polito.it/measure.shtml#LOG}).  Tables~\ref{tab:TStattcp},~\ref{tab:TStattcprtt} and~\ref{tab:TStathttp}  present the table describing of some interesting metrics in tcp and http logs.
+\begin{table}[tp]
+	\caption{Core TCP Set.}\label{tab:TStattcp}
+	\TableFont{
+		\begin{center}
+			\rowcolors{1}{LightYellow}{LightYellow}
+			\begin{tabular*}{1\textwidth}{|l|l|l|l|p{0.6\textwidth}}
+				\toprule
+				\cellcolor{BrightYellow}\textbf{C2S}		& \cellcolor{BrightYellow}\textbf{S2C} & \cellcolor{BrightYellow}\textbf{Short description} & \cellcolor{BrightYellow}\textbf{Unit}	& \cellcolor{BrightYellow}\textbf{Long description}\\ \midrule
+				1	& 15	& Client/Server IP addr		& --	& IP addresses of the client/server\\ \hline
+				2	& 16	& Client/Server TCP port	& --	& TCP port addresses for the client/server\\ \hline
+				3	& 17	& packets					& --	& total number of packets observed from the client/server\\
+				4	& 18	& RST sent					& 0/1	& 0 = no RST segment has been sent by the client/server\\
+				5	& 19	& ACK sent					& --	& number of segments with the ACK field set to 1\\
+				6	& 20	& PURE ACK sent				& --	& number of segments with ACK field set to 1 and no data\\ \hline
+				7	& 21	& unique bytes				& \si{\byte}	& number of bytes sent in the payload\\ \hline
+				8	& 22	& data pkts					& --	& number of segments with payload\\ \hline
+				9	& 23	& data bytes				& \si{\byte}	& number of bytes transmitted in the payload, including retransmissions\\ \hline
+				10	& 24	& rexmit pkts				& --	& number of retransmitted segments\\ \hline
+				11	& 25	& rexmit bytes				& \si{\byte}	& number of retransmitted bytes\\ \hline
+				12	& 26	& out seq pkts				& --	& number of segments observed out of sequence\\ \hline
+				13	& 27	& SYN count					& --	& number of SYN segments observed (including rtx)\\ \hline
+				14	& 28	& FIN count					& --	& number of FIN segments observed (including rtx)\\ \hline
+				\rowcolor{PalePink}\multicolumn{2}{l|}{29}	& First time abs	& \si{\milli\second}	& Flow first packet absolute time (epoch)\\ \hline
+				\rowcolor{PalePink}\multicolumn{2}{l|}{30}	& Last time abs		& \si{\milli\second}	& Flow last segment absolute time (epoch)\\ \hline
+				\rowcolor{PalePink}\multicolumn{2}{l|}{31}	& Completion time	& \si{\milli\second}	& Flow duration since first packet to last packet\\ \hline
+				\rowcolor{PalePink}\multicolumn{2}{l|}{32}	& C first payload	& \si{\milli\second}	& Client first segment with payload since the first flow segment\\
+				\rowcolor{PalePink}\multicolumn{2}{l|}{33}	& S first payload	& \si{\milli\second}	& Server first segment with payload since the first flow segment\\
+				\rowcolor{PalePink}\multicolumn{2}{l|}{34}	& C last payload	& \si{\milli\second}	& Client last segment with payload since the first flow segment\\
+				\rowcolor{PalePink}\multicolumn{2}{l|}{35}	& S last payload	& \si{\milli\second}	& Server last segment with payload since the first flow segment\\ \hline
+				\rowcolor{PalePink}\multicolumn{2}{l|}{36}	& C first ack		& \si{\milli\second}	& Client first ACK segment (without SYN) since the first flow segment\\ \hline
+				\rowcolor{PalePink}\multicolumn{2}{l|}{37}	& S first ack		& \si{\milli\second}	& Server first ACK segment (without SYN) since the first flow segment\\ \hline
+				\rowcolor{LightGreen}\multicolumn{2}{l|}{38}	& C internal		& 0/1					& 1 = client has internal IP, 0 = client has external IP\\ \hline
+				\rowcolor{LightGreen}\multicolumn{2}{l|}{39}	& S internal		& 0/1					& 1 = server has internal IP, 0 = server has external IP\\ \hline
+				\rowcolor{LightGreen}\multicolumn{2}{l|}{40}	& C anonymized		& 0/1					& 1 = client IP is CryptoPAn anonymized\\ \hline
+				\rowcolor{LightGreen}\multicolumn{2}{l|}{41}	& S anonymized		& 0/1					& 1 = server IP is CryptoPAn anonymized\\ \hline
+				\multicolumn{2}{l|}{42}	& Connection type	& --				& Bitmap stating the connection type as identified by TCPL7 inspection engine (see protocol.h)\\ \hline
+				\multicolumn{2}{l|}{43}	& P2P type			& --				& Type of P2P protocol, as identified by the IPP2P engine (see ipp2p\_tstat.h)\\ \hline
+				\multicolumn{2}{l|}{44}	& HTTP type			& --				& For HTTP flows, the identified Web2.0 content (see the http\_content enum in struct.h)\\
+				\bottomrule
+			\end{tabular*}
+		\end{center}
+	}
+	\end {table}
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.7\textwidth]{tcprtt.png}
-	\caption{TCP End to End Set.}
-	\label{fig:TStattcprtt}
-\end{figure}
+
+\begin{table}[tp]
+	%\setlength\arrayrulewidth{0.75pt}
+	\caption{TCP End to End Set.}\label{tab:TStattcprtt}
+	\TableFont{
+		\begin{center}
+			\rowcolors{1}{LightYellow}{LightYellow}
+			\begin{tabular*}{1\textwidth}{|l|l|l|l|p{0.65\textwidth}}
+				\toprule
+				\cellcolor{BrightYellow}\textbf{C2S}		& \cellcolor{BrightYellow}\textbf{S2C} & \cellcolor{BrightYellow}\textbf{Short description} & \cellcolor{BrightYellow}\textbf{Unit}	& \cellcolor{BrightYellow}\textbf{Long description}\\ \midrule
+				45	& 52	& Average rtt	& \si{\milli\second}	& Average RTT computed measuring the time elapsed between the data segment and the corresponding ACK\\ \hline
+				46	& 53	& rtt min		& \si{\milli\second}	& Minimum RTT observed during connection lifetime\\ \hline
+				47	& 54	& rtt max		& \si{\milli\second}	& Maximum RTT observed during connection lifetime\\ \hline
+				48	& 55	& Stdev rtt		& \si{\milli\second}	& Standard deviation of the RTT\\ \hline
+				49	& 56	& rtt count		& --					& Number of valid RTT observation\\ \hline
+				50	& 57	& ttl\_min		& --					& Minimum Time To Live\\
+				51	& 58	& ttl\_max		& --					& Maximum Time To Live\\
+				\bottomrule
+			\end{tabular*}
+		\end{center}
+	}
+	\end {table}
 
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[width=0.7\textwidth]{httpcomplete.png}
-	\caption{Core HTTP Set.}
-	\label{fig:TStathttp}
-\end{figure}
+\begin{table}[tp]
+	\caption{Core HTTP Set.}\label{tab:TStathttp}
+	\TableFont{
+	\begin{center}
+		\rowcolors{1}{LightYellow}{LightYellow}
+		\begin{tabular*}{1\textwidth}{|l|l|l|l|p{0.65\textwidth}}
+			\toprule
+			\cellcolor{PalePink}\textbf{C2S}		& \cellcolor{LightGreen}\textbf{S2C} & \cellcolor{BrightYellow}\textbf{Short description} & \cellcolor{BrightYellow}\textbf{Unit}	& \cellcolor{BrightYellow}\textbf{Long description}\\ \midrule
+			\cellcolor{PalePink}1					& \cellcolor{LightGreen}1			& Client IP addr	& --	& IP addresses of the client (sending the request/receiving the response) \\ \hline
+			\cellcolor{PalePink}2					& \cellcolor{LightGreen}2			& Client TCP port	& --	& TCP port addresses for the client \\ \hline
+			\cellcolor{PalePink}3					& \cellcolor{LightGreen}3			& Server IP addr	& --	& IP addresses of the server (receiving the request/sending the response) \\ \hline
+			\cellcolor{PalePink}4					& \cellcolor{LightGreen}4			& Server TCP port	& --	& TCP port addresses for the server \\ \hline
+			\cellcolor{PalePink}5					& \cellcolor{LightGreen}5			& Segment time abs	& \si{s}& Absolute time [s] (epoch) of the request/response \\ \hline
+			\cellcolor{PalePink}6					& 									& Request method	& --	& Request method (GET/POST/HEAD) [*] \\ \hline
+			\cellcolor{PalePink}7					& 									& Hostname			& --	& Value fo the ``Host:'' HTTP request field \\ \hline
+			\cellcolor{PalePink}8					& 									& FQDN				& --	& DN-Hunter cached DNS name [\^{}] \\ \hline
+			\cellcolor{PalePink}9					& 									& URL Path			& --	& URL request path \\ \hline
+			\cellcolor{PalePink}10					& 									& Referer			& --	& Value of the ``Referer:'' HTTP request field \\ \hline
+			\cellcolor{PalePink}11					& 									& User agent		& --	& Value of the ``User-Agent:'' HTTP request field \\ \hline
+			\cellcolor{PalePink}12					& 									& Cookie			& --	& Value of the ``Cookie:'' HTTP request field \\ \hline
+			\cellcolor{PalePink}13					& 									& Do Not Track		& --	& Value of the ``DNT:'' HTTP request field \\ \hline
+													& \cellcolor{LightGreen}6			& Response string	& --	& Response identifier (always ``HTTP'') [*] \\ \hline
+													& \cellcolor{LightGreen}7			& Response code		& --	& HTTP response code (2xx/3xx/4xx/5xx) \\ \hline
+													& \cellcolor{LightGreen}8			& Content len		& \si{\byte}	& Value of the ``Content-Length:'' HTTP response field \\ \hline
+													& \cellcolor{LightGreen}9			& Content type		& --	& Value of the ``Content-Type:'' HTTP response field \\ \hline
+													& \cellcolor{LightGreen}10			& Server			& --	& Value of the ``Server:'' HTTP response field \\ \hline
+													& \cellcolor{LightGreen}11			& Range				& --	& Value of the ``Content-Range:'' HTTP response field for partial content (Code 206) \\ \hline
+													& \cellcolor{LightGreen}12			& Location			& --	& Value of the ``Location:'' HTTP response field for redirected content (Code 302) \\ \hline
+													& \cellcolor{LightGreen}13			& Set Cookie		& --	& Value of the ``Set-Cookie:'' HTTP response field \\
+			\bottomrule
+		\end{tabular*}
+	\end{center}
+	}
+\end {table}
 
 
 %------------------------------------------------------------%
@@ -1091,7 +1179,7 @@ It is recommended to check the description of the logs on (\url{http://tstat.pol
 
 The user can check the state of the nodes under the tab ``Resources.'' Figure~\ref{fig:Resources} shows an example of the information that is supplied.
 
-\begin{figure}[h]
+\begin{figure}[tp]
 	\centering
 	\includegraphics[width=1\textwidth]{Resources.png}
 	\caption{Status of the \monroe{} nodes.}
