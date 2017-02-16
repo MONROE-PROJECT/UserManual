@@ -1296,6 +1296,834 @@ The user can check the state of the nodes under the tab ``Resources.'' Figure~\r
 	\label{fig:Resources}
 \end{figure}
 
+
+%------------------------------------------------------------%
+%------------------------------------------------------------%
+%------------------------------------------------------------%
+
+\section{\monroe{} templates, examples and default experiments}
+\label{sec:examples}
+
+This section details the template for building \monroe{} experiments, the experiments that run as part of the default \monroe{} platform and several additional examples that can be directly used or that can serve as the basis for new ones.
+The source code for the examples is publicly available at \url{https://github.com/MONROE-PROJECT/Experiments}.
+
+
+%------------------------------------------------------------%
+\subsection{Example template}
+
+This experiment template provides an extensive example to show the capabilities of the \monroe{} platform.
+The experiment will download a url (file) over http using \identifier{curl} from a configurable operator while at the same time recording the GPS positions of the node.
+If the operator is not available at the time of execution, the experiment will fail.
+
+\subsubsection{Usage}
+\label{subsubsec:templateUsage}
+%The default values are provided in the \identifier{/monroe/config} file.
+%These values can be modified with the following two methods, where ``Additional options'' take precedence over the values specified in the configuration file:
+
+%\begin{enumerate*}
+%	\item Supplying your own \identifier{/monroe/config} file.
+%	The file in your Docker layer will override the default file in the template docker layer.
+%	The configured parameters will be fixed for all the executions of your container.
+%	Notice that the whole file is substituted in the file system; hence, parameters not included in the configuration file of the user experiment will remain unspecified.
+%	\item Supplying a JSON string in the ``Additional options'' field of the web user interface.
+%	In this way, each execution of the experiment can receive a specific set of parameters.
+%\end{enumerate*}
+
+The configuration values can be supplied as a JSON string in the ``Additional options'' field of the web user interface.
+This allows to specify a different set of parameters for each execution of the experiment.
+
+The values of the configuration parameters can be read by the experiment from the \identifier{/monroe/config} file.
+The following text shows a configuration file with %per-container and 
+per-execution (``additional options'' field) options:%
+\footnote{Entries in the \identifier{/monroe/config} file may appear in different order.}
+
+{\VerbatimFont
+	\begin{verbatim}
+	{
+	"stop": 1486653420, 
+	"start": 1486653120,
+	"traffic": 1048576,
+	"script": "mikepeon/mike-depurar",
+	"shared": 0,
+	"storage": 134217728,
+	"resultsQuota": 0,
+	"guid": "sha256:3796f833f55c8dbca7e9845ea06120ccebec85c2770c0de2deb57509300efa44.165695.48.1",
+	"option1": "value1",
+	"option2": "value2",
+	"nodeid": "48"
+	}
+	\end{verbatim}}
+
+The default configuration values are as follows:
+
+{\VerbatimFont
+	\begin{verbatim}
+	{
+	# The following values are specific to the monroe platform
+	"guid": "no.guid.in.config.file",              # Created by the scheduler
+	"nodeid": "no.nodeid.in.config.file",          # Created by the scheduler
+	"storage": 104857600,                          # Created by the scheduler
+	"traffic": 104857600,                          # Created by the scheduler
+	"script": "jonakarl/experiment-template",      # Created by the scheduler
+	"zmqport": "tcp://172.17.0.1:5556",
+	"modem_metadata_topic": "MONROE.META.DEVICE.MODEM",
+	"gps_metadata_topic": "MONROE.META.DEVICE.GPS",
+	# "dataversion": 1,                            # Version of the experiment
+	# "dataid": "MONROE.EXP.JONAKARL.TEMPLATE",    # Name of the experiement
+	"meta_grace": 120,                             # Grace period to wait for interface metadata
+	"exp_grace": 120,                              # Grace period before killing experiment
+	"meta_interval_check": 5,                      # Interval to check if interface is up
+	"verbosity": 2,                                # 0="Mute", 1=error, 2=information, 3=verbose
+	"resultdir": "/monroe/results/",
+	# These values are specic for this experiment
+	"operator": "Telenor SE",
+	"url": "http://193.10.227.25/test/1000M.zip",
+	"size": 3*1024 - 1,                            # The maximum size in Kbytes to download
+	"time": 3600                                   # The maximum time in seconds for a download
+	}
+	\end{verbatim}}
+
+The download will abort when either size OR time OR actual size of the ``url'' is downloaded.
+All debug/error information will be printed on \identifier{stdout}, depending on the ``verbosity'' variable.
+
+\subsubsection{Requirements}
+
+The following directories and files must exist and have read and write permissions for the user/process running the container:
+
+\begin{itemize*}
+	\item \identifier{/monroe/config}, supplyed by the scheduler in the nodes.
+	\item ``\identifier{resultdir},'' according to the values supplied in the configuration string or the default ones (Section~\ref{subsubsec:templateUsage}).
+\end{itemize*}
+
+\subsubsection{Output}
+
+The experiment will execute a statement similar to running \identifier{curl} with the following command line:
+
+{\VerbatimFont
+	\begin{verbatim}
+	curl -o /dev/null --raw --silent --write-out "{ remote: %{remote_ip}:%{remote_port},
+	size: %{size_download}, speed: %{speed_download}, time: %{time_total},
+	time_download: %{time_starttransfer} }" --interface eth0 --max-time 100 --range 0-100
+	http://193.10.227.25/test/1000M.zip
+	\end{verbatim}}
+
+The experiment will produce a single-line JSON object similar to this (pretty printed to improve readability):
+
+{\VerbatimFont
+	\begin{verbatim}
+	{
+	"Bytes": 30720000,
+	"DataId": "313.123213.123123.123123",
+	"DataVersion": 1,
+	"DownloadTime": 2.716,
+	"GPSPositions": [
+	{
+	"Altitude": 225.0,
+	"DataId": "MONROE.META.DEVICE.GPS",
+	"DataVersion": 1,
+	"Latitude": 59.404697,
+	"Longitude": 13.581558,
+	"NMEA": "$GPGGA,094832.0,5924.281896,N,01334.893500,E,1,05,1.6,225.0,M,35.0,M,,*5D\r\n",
+	"SatelliteCount": 5,
+	"SequenceNumber": 14,
+	"Timestamp": 1465551728
+	},
+	{
+	"DataId": "MONROE.META.DEVICE.GPS",
+	"DataVersion": 1,
+	"Latitude": 59.404697,
+	"Longitude": 13.581558,
+	"NMEA": "$GPRMC,094832.0,A,5924.281896,N,01334.893500,E,0.0,,100616,0.0,E,A*2B\r\n",
+	"SequenceNumber": 15,
+	"Timestamp": 1465551728
+	}
+	],
+	"Guid": "sha256:15979bc2e2449b0011826c2bb8668df980da88221af3fc7916cb2eba4f2296c1.0.45.15",
+	"Host": "193.10.227.25",
+	"Iccid": "89460850007006922138",
+	"InterfaceName": "usb0",
+	"NodeId": "45",
+	"Operator": "Telenor SE",
+	"Port": "80",
+	"SequenceNumber": 1,
+	"SetupTime": 0.004,
+	"Speed": 11295189.0,
+	"TimeStamp": 1465551458.099917,
+	"TotalTime": 2.72
+	}
+	\end{verbatim}}
+
+\subsubsection{Overview of the code structure}
+
+The experiment consists of one main process and two sub processes, where one process listens to modem and gps information, and the other executes the experiment.
+The main process supervises the execution of its two children.
+
+\paragraph{Information sharing between processes.}
+Information is shared between processes via two thread-safe data structures (i.e., a Python ``Manager'' object).
+Regarding modem information, the latest metadata update (for the specified operator) is stored in a dictionary.
+The GPS information is continuously appended to a list as it is received.
+
+\paragraph{The metadata sub-process.}
+This process listens to GPS and modem messages sent on the ZeroMQ bus and updates the shared data structures.
+
+\paragraph{The experiment sub-process.}
+This process reads entries from the shared data structures, runs the experiment and saves its result when finished.
+
+\subsection{Docker miscellaneous usage notes}
+
+\begin{itemize*}
+	\item List running containers:
+	\begin{verbatim}docker ps\end{verbatim}
+	
+	\item Debug shell:
+	\begin{verbatim}docker run -i -t --entrypoint bash --net=host template\end{verbatim}
+	
+	\item Normal execution with output to \identifier{stdout}:
+	\begin{verbatim}docker run -i -t --net=host template\end{verbatim}
+	
+	\item Attach to a running container (with shell):
+	\begin{verbatim}docker exec -i -t [container runtime name] bash\end{verbatim}
+	
+	\item Get container logs (\identifier{stderr} and \identifier{stdout}):
+	\begin{verbatim}docker logs [container runtime name]\end{verbatim}
+\end{itemize*}
+
+
+%------------------------------------------------------------%
+\subsection{Experiment: ping}
+
+This background experiment runs continuously an RTT estimate on each MBB operator on the node (one independent experiment is run per interface).
+The experiments measure IP RTT by continuously sending ping packets to a configurable server (by default \identifier{8.8.8.8}, Google's public DNS server).
+The experiment will send one ``Echo Request'' (ICMP type 8) packet per second over the specified interface until aborted.
+RTT is measured as the time between the echo request is sent and the echo reply (ICMP type 0) is received from the server.
+The experiment runs on all interfaces in parallel.
+
+\subsubsection{Usage}
+
+The experiment is designed to run as a Docker container and will not attempt to do any active network configuration.
+If the specified interface does not exist (i.e., is not up) when the experiment starts, it will immediately exit.
+
+The default parameter values are:
+
+{\VerbatimFont
+	\begin{verbatim}
+	{
+	"guid": "no.guid.in.config.file",                # Created by the scheduler
+	"zmqport": "tcp://172.17.0.1:5556",
+	"nodeid": "fake.nodeid",
+	"modem_metadata_topic": "MONROE.META.DEVICE.MODEM",
+	"server": "8.8.8.8",                             # ping target
+	"interval": 1000,                                # time in ms between successive packets
+	"dataversion": 2,
+	"dataid": "MONROE.EXP.PING",
+	"meta_grace": 120,                               # Grace period to wait for interface metadata
+	"ifup_interval_check": 5,                        # Interval to check if interface is up
+	"export_interval": 5.0,
+	"verbosity": 2,                                  # 0="Mute", 1=error, 2=Information, 3=verbose
+	"resultdir": "/monroe/results/",
+	"modeminterfacename": "InternalInterface",
+	"interfacename": "eth0",                         # Interface to run the experiment on
+	"interfaces_without_metadata": ["eth0", "wlan0"] # Manual metadata on these interfaces
+	}
+	\end{verbatim}}
+
+All debug/error information will be printed on \identifier{stdout} depending on the value of the ``verbosity'' parameter.
+
+\subsubsection{Requirements}
+
+The following directories and files must exist and have read and write permissions for the user/process running the container:
+
+\begin{itemize*}
+	\item \identifier{/monroe/config}, supplyed by the scheduler in the nodes.
+	\item ``\identifier{resultdir},'' according to the values supplied in the configuration string or the default ones (Section~\ref{subsubsec:templateUsage}).
+\end{itemize*}
+
+\subsubsection{Output}
+
+The experiment will execute a statement similar to running \identifier{fping} with the following command line:
+
+{\VerbatimFont
+	\begin{verbatim}
+	fping -I eth0 -D -c 1 -p 1000 -l 8.8.8.8
+	\end{verbatim}}
+
+The experiment will produce one of the two following single-line JSON objects, depending on whether it got a reply form the server or not.
+If a reply was received:
+
+{\VerbatimFont
+	\begin{verbatim}
+	{
+	"Guid": "313.123213.123123.123123", # exp_config['guid']
+	"Timestamp": 23123.1212, # time.time()
+	"Iccid": 2332323, # meta_info["ICCID"]
+	"Operator": "Telia", # meta_info["Operator"]
+	"NodeId" : "9", # exp_config['nodeid']
+	"DataId": "MONROE.EXP.PING",
+	"DataVersion": 2,
+	"SequenceNumber": 70,
+	"Rtt": 6.47,
+	"Bytes": 84,
+	"Host": "8.8.8.8",
+	}
+	\end{verbatim}}
+
+If the reply was not received (Bytes and RRR values are not present):
+
+{\VerbatimFont
+	\begin{verbatim}
+	{
+	"Guid": "313.123213.123123.123123", # exp_config['guid']
+	"Timestamp": 23123.1212, # time.time()
+	"Iccid": 2332323, # meta_info["ICCID"]
+	"Operator": "Telia", # meta_info["Operator"]
+	"NodeId" : "9", # exp_config['nodeid']
+	"DataId": "MONROE.EXP.PING",
+	"DataVersion": 2,
+	"SequenceNumber": 71,
+	"Host": "8.8.8.8",
+	}
+	\end{verbatim}}
+
+
+%------------------------------------------------------------%
+\subsection{Experiment: http\_download}
+
+This is a periodically scheduled experiment that monitors the download speed of each MBB operator on the node.
+The experiment will, over each MBB operator in sequence, download the specified url (file) with \identifier{curl} (http), presenting one result per interface. 
+
+\subsubsection{Usage}
+The experiment will execute a statement similar to running \identifier{curl} on each interface with the following command line:
+
+{\VerbatimFont
+	\begin{verbatim}
+	curl -o /dev/null --raw --silent --write-out "{ Host: %{remote_ip}, Port :%{remote_port},
+	Bytes: %{size_download}, Speed: %{speed_download}, TotalTime: %{time_total},
+	SetupTime: %{time_starttransfer}, Url: %{url_effective} }" --interface IFNAME --max-time 3600
+	--range 0-3071 http://193.10.227.25/test/1000M.zip
+	\end{verbatim}}
+
+The default parameter values are:
+
+{\VerbatimFont
+	\begin{verbatim}
+	{
+	"guid": "no.guid.in.config.file",                  # Created by the scheduler
+	"url": "http://193.10.227.25/test/1000M.zip",
+	"size": 3*1024,                                    # Maximum size in Kbytes to download
+	"time": 3600,                                      # Maximum time in seconds for a download
+	"zmqport": "tcp://172.17.0.1:5556",
+	"modem_metadata_topic": "MONROE.META.DEVICE.MODEM",
+	"dataversion": 2,
+	"dataid": "MONROE.EXP.HTTP.DOWNLOAD",
+	"nodeid": "fake.nodeid",
+	"meta_grace": 120,                                 # Grace period to wait for interface metadata
+	"exp_grace": 120,                                  # Grace period before killing the experiment
+	"ifup_interval_check": 5,                          # Interval to check if interface is up
+	"time_between_experiments": 30,
+	"verbosity": 2,                                    # 0="Mute", 1=error, 2=Information, 3=verbose
+	"resultdir": "/monroe/results/",
+	"modeminterfacename": "InternalInterface",
+	"disabled_interfaces": ["lo", "metadata", "eth0",
+	"wlan0"],                  # Interfaces to NOT run the experiment on
+	"interfaces_without_metadata": ["eth0", "wlan0"]   # Manual metadata on these interfaces
+	}
+	\end{verbatim}}
+
+\subsubsection{Output}
+
+The experiment will produce a single-line JSON object for each interface similar to this:
+
+{\VerbatimFont
+	\begin{verbatim}
+	{
+	"Guid": "313.123213.123123.123123",              # exp_config["guid"]
+	"Timestamp": 23123.1212,                         # time.time() when curl download starts
+	"Iccid": 2332323,                                # meta_info["ICCID"]
+	"Operator": "Telia",                             # meta_info["Operator"]
+	"DownloadTime": 49.12,                           # "TotalTime" - "SetupTime"
+	"SequenceNumber": 1,                             # Static 
+	"Host": "193.10.227.25",
+	"Port": "80",
+	"Speed": 256.2,
+	"Bytes": 101,
+	"TotalTime": 50.1,
+	"SetupTime": 3, 
+	"Url": "http://193.10.227.25/test/1000M.zip",
+	"NodeId" : "9",                                  # exp_config["nodeid"]
+	"DataId": "MONROE.EXP.HTTP.DOWNLOAD",
+	"DataVersion": 2,
+	"ErrorCode": 0                                   # curl command error code.
+	}
+	\end{verbatim}}
+
+
+%------------------------------------------------------------%
+\subsection{Experiment: Tstat \& mPlane}
+
+The mPlane protocol provides control and data interchange for passive and active network measurement tasks.
+It is built around a simple workflow that can interact with different frameworks to provide the results of the measurements.
+This package includes an mPlane proxy and generic configuration files for Tstat.
+
+mPlane captures traffic flow on all interfaces by means of the Tstat (\url{http://tstat.polito.it/}) probe.
+The mPlane container is always running as one of the default experiments on all \monroe{} nodes.
+The Tstat passive traces are stored locally on the node and are accessible by the experimenters.
+A detailed description and the source code are available on github (\url{https://github.com/MONROE-PROJECT/mPlane}).
+
+Tstat RRD logs and the compressed log are stored in the node at \identifier{/experiments/monroe/mplane}.
+Tstat logs are transfered to the \monroe{} server and imported into \monroe{}'s (Cassandra) database.
+The structure of the database tables is available on github (\url{https://github.com/MONROE-PROJECT/Database/blob/master/db_schema.cql}).
+
+During experiment execution, the last three Tstat logs are shared with the experiment at \identifier{/monroe/tstat}.
+Therefore, \monroe{} users can access the passive traces collected by Tstat during their experiments.
+
+The data collected for a subset of the most relevant metrics for the HTTP experiments are visualized by the \monroe{} visualization tool.
+And example of the metrics contained in the Tstat logs can be seen here: \url{http://213.182.68.136:8080/#/experiment/tstat}.
+
+\subsubsection{Requirements}
+
+The script must have access to \identifier{/nodeid} and run \identifier{get\_nodeid}.
+
+\subsubsection{Usage}
+
+Create your docker image normally and execute the container with the following command line:
+
+{\VerbatimFont
+	\begin{verbatim}
+	docker run -i -t --net=host -d -v /mplane:/monroe/results -v /tstat:/monroe/tstat
+	-v /etc/nodeid:/nodeid:ro monroe/mplane
+	\end{verbatim}}
+
+
+%------------------------------------------------------------%
+\subsection{\monroe{} example: helloworld}
+
+This experiment provides an easy example for using the configuration options from the scheduler, listen to and record the metadata stream (e.g., GPS and operator information), and show the experiment log functionality on a \monroe{} node.
+The experiment listens to the metadata stream and records the \identifier{nr\_of\_messages} first messages.
+The metadata messages are saved in JSON format with a custom field (``Hello'') in the output directory.
+Additionally, the experiment prints out some debugging messages to show how these messages are logged and later retrieved via the web user interface.
+
+\subsubsection{Usage}
+\label{subsubsec:helloworldUsage}
+
+The experiment is configured with a JSON string introduced via the ``Additional options'' field in the web user interface.
+The configurable parameters and their default values are:
+
+{\VerbatimFont
+	\begin{verbatim}
+	{
+	"zmqport": "tcp://172.17.0.1:5556",
+	"nodeid": "fake.nodeid",              # Needs to be overriden
+	"metadata_topic": "MONROE.META",
+	"verbosity": 2,                       # 0 = "Mute", 1=error, 2=Information, 3=verbose
+	"resultdir": "/monroe/results/",
+	"nr_of_messages": 3
+	}
+	\end{verbatim}}
+
+\subsubsection{Requirements}
+
+The following directories and files must exist and have read and write permissions for the user/process running the container:
+
+\begin{itemize*}
+	\item \identifier{/monroe/config}, supplyed by the scheduler in the nodes.
+	\item ``\identifier{resultdir},'' according to the values supplied in the configuration string or the default ones (Section~\ref{subsubsec:helloworldUsage}).
+\end{itemize*}
+
+\subsubsection{Output}
+
+The experiment will produce a single-line JSON object similar to the following ones, depending on the metadata received (``pretty printed'' here to improve readability):
+
+{\VerbatimFont
+	\begin{verbatim}
+	{
+	"DataId": "MONROE.META.NODE.SENSOR",
+	"DataVersion": 1,
+	"SequenceNumber": 58602,
+	"Timestamp": 1465888420,
+	"NodeId": "9",
+	"Hello": "World"
+	}
+	\end{verbatim}}
+
+\noindent The log file will contain records similar to these ones:
+
+{\VerbatimFont
+	\begin{verbatim}
+	[2017-02-07 09:53:27.190338] Hello: Default config {
+	"metadata_topic": "MONROE.META", 
+	"nodeid": "fake.nodeid", 
+	"nr_of_messages": 3, 
+	"resultdir": "/monroe/results/", 
+	"verbosity": 2, 
+	"zmqport": "tcp://172.17.0.1:5556"
+	}
+	[2017-02-07 09:53:27.20000] Hello: Start recording messages with configuration {
+	"metadata_topic": "MONROE.META", 
+	"nodeid": "fake.nodeid", 
+	"nr_of_messages": 3, 
+	"resultdir": "/monroe/results/", 
+	"verbosity": 2, 
+	"zmqport": "tcp://172.17.0.1:5556"
+	}
+	[[2017-02-07 09:53:27.30000] Received message 1 with topic : MONROE.META.NODE.SENSOR
+	{
+	"DataId": "MONROE.META.NODE.SENSOR",
+	"DataVersion": 1,
+	"SequenceNumber": 58602,
+	"Timestamp": 1465888420,
+	"NodeId": "9",
+	"Hello": "World"
+	}
+	. # And so on for each metadata message received until the configured value of metadata messages
+	.
+	.
+	[2017-02-07 09:53:27.40000] Hello : Finished the experiment
+	\end{verbatim}}
+
+
+%------------------------------------------------------------%
+\subsection{\monroe{} example: paris-traceroute}
+
+This example showcases how to use the \monroe{}-modified version of paris-traceroute inside a container.
+The binary of this tool is included in the base image of \monroe{}.
+
+The original version of paris-traceroute has no option to choose which interface should be used.
+In this version, flags to set the interface and source IP of the transmitted packets have been added.
+Setting the interface is obligatory; if it is not set, the program will crash (by design), since if the interface were chosen automatically, it would probably not be what the experimenter intended to use.
+The source IP flag is optional.
+Just setting the IP flag to the IP of an interface without setting the interface flag will not work either.
+This is done on purpose as well, as it might be possible for multiple interfaces to have the same IP within the \monroe{} network namespace.
+If the IP flag is not set, the source IP is set to the IP of the chosen interface.
+
+\subsubsection{Usage (inside a \monroe{} container)}
+
+The parameters of this experiment are provided as ``Additional options'' in the scheduling web interface.
+The following JSON string is an example of the additional options that can be passed to this container:
+\begin{verbatim}
+"interfaces": ["op1", "op2"], "targets": ["8.8.8.8", "www.uc3m.es"],
+"traceAlgos": ["exh"], "protocol": "udp"
+\end{verbatim}
+
+Flags:
+\begin{verbatim}
+-C  --nodeIPArgument              Source IP
+-O  --nodeInterfaceArgument       Source interface (mandatory)
+\end{verbatim}
+
+The paris-traceroute binary can be executed (as any normal Linux command) either without specifying a traceroute algorithm to perform a ``simple'' traceroute (similar to the output of the ordinary traceroute command), or with the flags \identifier{-n -a exh}, to perform an exhaustive traceroute.
+Exhaustive traceroutes provide more detailed and accurate paths between the host (\monroe{} node) and the target server that are able to detect, among others, the presence of load balancers, which create multiple paths between host and target.
+
+\subsubsection{Output}
+
+The experiment output is a text file:
+
+{\VerbatimFont
+	\begin{verbatim}
+	root@b59e69a56297:/# paris-traceroute -O op2 -C 192.168.1.127 8.8.8.8
+	traceroute [(192.168.1.127:33456) -> (8.8.8.8:33457)], protocol udp, algo hopbyhop, duration 18 s
+	1  192.168.1.1 (192.168.1.1)  2.946 ms   0.553 ms   0.559 ms 
+	2  * * *
+	3  10.133.17.29 (10.133.17.29)  83.259 ms   136.577 ms   82.050 ms 
+	4  10.133.17.14 (10.133.17.14)  78.783 ms   131.510 ms   79.231 ms 
+	5  10.133.17.236 (10.133.17.236)  84.243 ms   133.024 ms   79.785 ms 
+	6  10.133.17.3 (10.133.17.3)  81.543 ms   139.381 ms   100.263 ms 
+	7  83.224.40.186 (83.224.40.186)  89.319 ms   188.926 ms   179.963 ms 
+	MPLS Label 24703 TTL=254
+	8  83.224.40.185 (83.224.40.185)  82.710 ms   172.438 ms   147.020 ms 
+	9  85.205.14.105 (85.205.14.105)  85.179 ms   137.514 ms   125.869 ms 
+	10  72.14.223.169 (72.14.223.169)  85.609 ms   137.363 ms   118.063 ms 
+	11  216.239.47.128 (216.239.47.128)  79.567 ms   146.356 ms   145.285 ms 
+	12  209.85.243.33 (209.85.243.33)  129.615 ms   198.938 ms   269.407 ms 
+	MPLS Label 568892 TTL=1
+	13  64.233.174.143 (64.233.174.143)  108.599 ms   185.810 ms   246.661 ms 
+	MPLS Label 692130 TTL=1
+	14  108.170.234.47 (108.170.234.47)  111.645 ms   825.615 ms   1424.942 ms 
+	15  * * *
+	16  google-public-dns-a.google.com (8.8.8.8)  103.087 ms !T2   166.279 ms !T2   224.649 ms !T2 
+	\end{verbatim}
+}
+
+
+\subsubsection{Additional remarks}
+
+Paris-traceroute instances should be run sequentially and preferably when the node is generating little traffic in general because it uses raw packet capture to detect the replies from intermediate nodes and background traffic might interfere with this process.
+
+
+%------------------------------------------------------------%
+\subsection{\monroe{} example: headlessbrowsing}
+
+This experiment evaluates the performance of different HTTP protocols (HTTP1.1, HTTP1.1/TLS, HTTP2) using the headless Firefox browser.
+The experiment uses the Selenium browser-automation framework, which enables execution of web-browsing automation tests in different browsers such as Firefox and Chrome.
+The Selenium web-driver is used for Firefox.
+For a given url, HTTP protocol and source network interface, Selenium launches the native Firefox browser to visit that url.
+
+\subsubsection{Output}
+This experiment generates an HTTP ARchive (HAR) file during the download of a target url that helps to find afterwards the impact of different web-page features on its overall Page Load Time (PLT).
+
+The experiment generates a single JSON file such as:
+
+{\VerbatimFont
+	\begin{verbatim}
+	{
+	"DataId":"MONROE.EXP.FIREFOX.HEADLESS.BROWSING",
+	"ping_min":" 55.6",
+	"ping_max":"56.8",
+	"NumObjects":6,
+	"InterfaceName":"usb2",
+	"Web load time":196,
+	"PageSize":35641,
+	"DataVersion":1,
+	"Timestamp":1481536829.0814,
+	"NWMCCMNC":22210,
+	"Objects":[
+	{
+	"objectSize":1951,
+	"mimeType":"image/png",
+	"startedDateTime":"2016-12-12T10:00:21.293+00:00",
+	"url":"https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia_wordmark.png",
+	"timings":{"receive":1, "send":0, "connect":1, "dns":0, "blocked":0, "wait":60},
+	"time":62
+	},
+	{
+	"objectSize":13196,
+	"mimeType":"image/png",
+	"startedDateTime":"2016-12-12T10:00:21.294+00:00",
+	"url":"https://www.wikipedia.org/portal/wikipedia.org/assets/img/Wikipedia-logo-v2.png",
+	"timings":{"receive":52, "send":3, "connect":59, "dns":2, "blocked":0, "wait":53 },
+	"time":169
+	},
+	{
+	"objectSize":9425,
+	"mimeType":"application/javascript",
+	"startedDateTime":"2016-12-12T10:00:21.295+00:00",
+	"url":"https://www.wikipedia.org/portal/wikipedia.org/assets/js/index-abc278face.js",
+	"timings":{"receive":3, "send":0, "connect":120, "dns":0, "blocked":0, "wait":65},
+	"time":188
+	},
+	{
+	"objectSize":1164,
+	"mimeType":"application/javascript",
+	"startedDateTime":"2016-12-12T10:00:21.296+00:00",
+	"url":"https://www.wikipedia.org/portal/wikipedia.org/assets/js/gt-ie9-c84bf66d33.js",
+	"timings":{"receive":0, "send":1, "connect":64, "dns":2, "blocked":0, "wait":70 },
+	"time":137
+	},
+	{
+	"objectSize":1590,
+	"mimeType":"image/png",
+	"startedDateTime":"2016-12-12T10:00:21.381+00:00",
+	"url":"https://www.wikipedia.org/portal/wikipedia.org/assets/img/sprite-icons.png?
+	27378e2bb51199321b32dd1ac3f5cd755adc21a5",
+	"timings":{"receive":1, "send":0, "connect":1, "dns":0, "blocked":0, "wait":49 },
+	"time":51
+	},
+	{
+	"objectSize":8315,
+	"mimeType":"image/png",
+	"startedDateTime":"2016-12-12T10:00:21.425+00:00",
+	"url":"https://www.wikipedia.org/portal/wikipedia.org/assets/img/sprite-project-logos.png?
+	dea6426c061216dfcba1d2d57d33f4ee315df1c2",
+	"timings":{"receive":2, "send":0, "connect":8, "dns":0, "blocked":0, "wait":54 },
+	"time":64
+	} ],
+	"IPAddress":"2.43.181.254",
+	"IMSIMCCMNC":22210,
+	"tracedRoutes":["192.168.96.1", "193.10.227.25", "xx.xx.xx.xx" ..... "192.168.96.1" ],
+	"InternalInterface":"op0",
+	"NodeId":"41",
+	"ping_exp":1,
+	"Protocol":"HTTP1.1",
+	"SequenceNumber":1,
+	"url":"www.wikipedia.org",
+	"ping_avg":"56.2",
+	"InternalIPAddress":"192.168.96.123",
+	"Operator":"voda IT",
+	"Iccid":"8939104160000392116"
+	}
+	\end{verbatim}}
+
+%------------------------------------------------------------%
+\subsection{\monroe{} example: pReplay}
+
+The pReplay experiment replays the dependency graph of a web site.
+
+The traversal begins with the first activity: Loading the root HTML.
+After building the dependency graph, it acts for each task whose dependencies have already been met.
+For network tasks, it makes a request for the corresponding url; correspondingly, for computation activities, it waits for the amount of time mentioned in the graph.
+Once a particular activity is finished, pReplay checks if any activities depending on that one have already met all of their dependencies and must thus be triggered.
+pReplay walks through the dependency graph until all activities in the graph have been visited.
+
+\subsubsection{Usage}
+
+Execute pReplay on a command line inside a container as with any other Linux command:
+{\VerbatimFont
+	\begin{verbatim}
+	./pReplay interface_name server testfile [http|https|http2] [max-connections] [cookie-size]
+	\end{verbatim}}
+
+\noindent Parameters:
+\begin{itemize*}
+	\item \textbf{interface\_name:} Source interface for outgoing traffic.
+	\item \textbf{server:} DNS name or IP address.
+	\item \textbf{testfile:} Relative path to test file in JSON format.
+	\item \textbf{protocol:}
+	\begin{itemize*}
+		\item http: http 1.1
+		\item https: http 1.1 with SSL
+		\item http2: http 2
+	\end{itemize*}
+	\item \textbf{max-connections:} Maximum amount of concurrent connections.
+	\item \textbf{cookie-size:} Size of cookie --- works with http1 only.
+\end{itemize*}
+
+
+%------------------------------------------------------------%
+\subsection{\monroe{} example: astream}
+
+AStream is a Python based emulated video player to evaluate the performance of the DASH bitrate adaptation algorithms.
+The supported rate adaptation algorithms are:
+
+\begin{itemize*}
+	\item Basic adaptation.
+	\item Segment Aware Rate Adaptation (SARA)~\cite{p:juluri2015}.
+	\item Buffer-Based Rate Adaptation (Netflix)~\cite{p:teyuan2014}.
+\end{itemize*}
+
+\subsubsection{Usage}
+
+The experimenter can choose the rate adaptation algorithm passing a JSON string to the scheduler through the user interface (e.g., \identifier{"playback":"NETFLIX"}).
+The default is the basic adaptation scheme.
+Additionally, the user can specify the target MPD file to play (e.g., \identifier{"mpd\_file":"http://128.39.37.161:8080/BigBuck\-Bunny\_4s.mpd"}) and the number of segments to retrieve (e.g., \identifier{"segment\_limit":10}).
+
+\subsubsection{Output}
+
+The astream container outputs two log files:
+\begin{enumerate*}
+	\item Buffer logs: Epoch time, current playback time, current buffer size (in segments), current playback state.
+	\item Playback logs: Epoch time, playback time, segment number, segment size, playback bitrate, segment duration, weighted harmonic mean average download rate.
+\end{enumerate*}
+
+
+%------------------------------------------------------------%
+\subsection{\monroe{} example: udpbwestimator}
+
+Udpbwestimator is an experiment setup to estimate available bandwidth for a particular network interface.
+It consists of two applications, a receiver and a traffic generator (server).
+The receiver initiates connections and requests the server for traffic.
+Then, every second, the server sends a burst of UDP packets back to back to the receiver, which follows the packet arrival times and estimates the available bandwidth.
+
+\subsubsection{Usage}
+
+The receiver accepts the following command line parameters:
+\begin{itemize*}
+	\item[] -c : Number of back-to-back packets to be sent in each second.
+	\item[] -b : Number of bursts to be sent.
+	\item[] -l : Payload length in bytes.
+	\item[] -s : Source IP to bind to.
+	\item[] -o : Source port.
+	\item[] -d : Destination IP.
+	\item[] -p : Destination port.
+	\item[] -w : Optional, filename for writing the packet arrival times.
+\end{itemize*}
+
+\subsubsection{Output}
+
+The experiment will produce a single-line JSON object similar to the following:
+
+{\VerbatimFont
+	\begin{verbatim}
+	{
+	"CID" : 33346602,
+	"DataId" : "MONROE.EXP.UDPBWESTIMATOR",
+	"DataVersion" : 1,
+	"DeviceMode" : 5,
+	"DeviceState" : 3,
+	"Guid" : "sha256:872af8c8b8f1635be6936a111b5fa838071e6f42cb317e9db1d9bb0c7db31425.93321.204.1",
+	"IMEI" : "864154023639966",
+	"IMSI" : "240016025247086",
+	"IMSIMCCMNC" : 24001,
+	"IPAddress" : "78.79.63.124",
+	"Iccid" : "89460120151010468086",
+	"InterfaceName" : "usb0",
+	"InternalIPAddress" : "192.168.68.118",
+	"InternalInterface" : "op1",
+	"LAC" : 2806,
+	"NWMCCMNC" : 24202,
+	"NodeId" : "204",
+	"Operator" : "NetCom",
+	"RSRP" : -72,
+	"RSRQ" : -7,
+	"RSSI" : -49,
+	"SequenceNumber" : 1,
+	"Timestamp" : 1479312368.633218,
+	"bw" : "48.41 38.98 36.44 50.00 30.20 45.21 47.02 37.89 44.37 28.90 25.91 38.57 48.74 
+	39.94 43.37 37.94 43.81 39.60 52.00 47.55 48.20 34.85 41.44 47.60 57.26 46.11 
+	45.66 52.04 37.43 49.67 33.56 50.35 41.11 51.63 45.33 104.01 45.73 49.95 50.37 
+	38.57 29.45 50.95 54.95 45.42 47.13 34.30 46.10 103.68 79.75 45.72 52.03 30.38 
+	50.21 36.96 71.51 54.66 39.26 44.12 45.18 39.93"
+	}
+	\end{verbatim}}
+
+
+%------------------------------------------------------------%
+\subsection{\monroe{} example: traceroute\_background\_experiment}
+
+Performs traceroute periodically to various targets.
+This experiment is meant to be run in the background and can be run in parallel with experiments of other users.
+It uses the default traceroute binary distributed by the Debian repositories.
+
+Each traceroute produces a text file that is parsed by \identifier{outputParser.py} to generate the JSON output of this experiment.
+The JSON file is then imported into the \monroe{} database.
+
+\subsubsection{Usage}
+
+To reduce experiment duration, the traceroutes can be run in parallel.
+The number of parallel traceroute instances is dictated by the \identifier{maxNumberOfTotalTracerouteInstances} parameter.
+It is possible to parallelize on a per-interface basis (i.e., \identifier{maxNumberOfTotalTracerouteInstances} per interface) or per the whole experiment (i.e., \identifier{maxNumberOfTotalTracerouteInstances} total in the experiment instance spread among all the interfaces).
+This behavior is controlled by the \identifier{executionMode} parameter.
+The available options are: serially, serialPerInterface and parallel.
+
+Additionally, a flag can be provided to choose the protocol of the probes: default, udp, tcp and icmp.
+
+The parameters of this experiment are provided as ``Additional options'' in the web user interface.
+An example JSON string that can be used with this container as additional options is:
+
+{\VerbatimFont
+	\begin{verbatim}
+	"interfaces": ["op0", "op1", "op2"], "targets": ["www.ntua.gr", "www.uc3m.es", "Google.com", 
+	"Facebook.com", "Youtube.com", "Baidu.com", "Yahoo.com", "Amazon.com", "Wikipedia.org", 
+	"audio-ec.spotify.com", "mme.whatsapp.net", "sync.liverail.com", "ds.serving-sys.com", 
+	"instagramstatic-a.akamaihd.net"], "maxNumberOfTotalTracerouteInstances": 5, 
+	"executionMode": "parallel"
+	\end{verbatim}}
+
+
+%------------------------------------------------------------%
+\subsection{Other containers in the repositories}
+
+Our public repositories contain the source code for other Docker containers that perform varied tasks in the nodes.
+Although they are not intended as examples, users can take a look into them to gain a deeper understanding of the platform configuration. 
+
+\subsubsection{Container: metadata-subscriber}
+
+The subscriber is designed to listen to ZMQ messages send out by the metadata-multicaster.
+The subscriber attaches to a configurable ZeroMQ socket and listens to all messages that begin with the topic ``MONROE.META,'' except the ones whose topic ends with ``.UPDATE'' (rebroadcasts) and/or begins with ``MONROE.META.DEVICE.CONNECTIVITY.'' as these are redundant.
+All messages are updated with NodeId, but are otherwise saved verbatim as a JSON formatted file suitable for later import in the \monroe{} databases.
+
+\subsubsection{Container: tunnelbox-server}
+
+This container acts as an SSH reverese tunnel endpoint that clients can use to directly connect to their experiment containers (on any \monroe{} node).
+The purpose is to provide experimenters an interactive way of accessing an experiment running on a real \monroe{} node during development or debugging. 
+The client has to supply its own public SSH key to the experiment container using the web user interface.
+The web user interface provides further instructions (SSH command line) to connect to the experiment container using the provided key.
+
+\subsubsection{Container: monroe\_base}
+
+This is the container upon which all user experiments \emph{must} be built.
+The container is based on Debian ``jessie'' with (\monroe{}) common experiment tools added.
+For a list of the tools currently installed see the folder \identifier{monroe\_base.docker} in our repositories.
+
+
 %------------------------------------------------------------%
 %------------------------------------------------------------%
 %------------------------------------------------------------%
@@ -2084,10 +2912,12 @@ Before being able to access Windows (host) folders from a container, the drive h
 
 
 \end{appendices}
+
+
 %------------------------------------------------------------%
 
-%\bibliographystyle{plain}
-%\bibliography{XXX}
+\bibliographystyle{plain}
+\bibliography{user_manual}
 
 %------------------------------------------------------------%
 
