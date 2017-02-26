@@ -756,9 +756,10 @@ In those cases, the ``Stopped'' state could actually be the correct ending state
 Any files written during the experiment to the \identifier{/monroe/results} directory will be synchronized to the experiment repository.
 This operation happens continuously during experiment execution and then upon its finalization.
 Therefore, it is advisable that only final files ready to be transferred are copied (indeed, mv'ed) to that location to avoid the system to sync temporary files and consume your quota or produce invalid results.
+This recommendation means that files in the results folder should not be updated; experimenters are encouraged to copy intermediate result files as soon as they are ready so they can retrieve partial results if the experiment fails in the middle of its execution.
 
 The result files can be accessed through the user interface:
-For experiments that have already been started, the interface presents a link under the column ``Results'' that redirects the user to the HTTP folder (Figure~\ref{fig:ResultsRetrieval}) that contains the files that have already been synchronized from the node where the experiment runs to the repository.
+For experiments that have already been started, the interface presents a link under the column ``Results'' that redirects the user to the HTTP folder (Figure~\ref{fig:ResultsRetrieval}) that contains the files already synchronized from the node where the experiment runs to the repository.
 In this way, the experimenter can retrieve result files even for partial experiments that fail or are canceled.
 
 \begin{figure}[tp]
