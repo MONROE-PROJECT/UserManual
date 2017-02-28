@@ -169,7 +169,7 @@ POLITECNICO DI TORINO & POLITO \\
 
 The purpose of this document is to guide \monroe{} experimenters through the process of creating, running and monitoring their experiments, and the subsequent collection of results.
 It first explains how the experiments must be prepared inside Docker containers, the testing process they must undergo before they can be deployed into \monroe{}'s nodes, and how they must be uploaded to a repository for deployment into the nodes.
-Then, it explains the basics of the web interface that allows for the provision of resources and the scheduling of experiment executions.
+Then, it explains the basics of the web interface that allows provision of resources and the scheduling of experiment executions.
 Finally, it shows how the experiment results can be retrieved either directly from the experiment itself or from the repository provided by \monroe{}.
 
 \subsection{Overview of the node configuration}
@@ -182,24 +182,45 @@ Container image size and temporary storage in the node may be restricted, though
 Every \monroe{} node runs, in addition to user experiments, the following background processes:
 
 \begin{itemize}
-	\item The experiment scheduler, which arbitrates the execution of user experiments in the node. The scheduler runs permanently in the background and contacts periodically the scheduling server, sending ``heartbeats'' and checking for new schedules for the node.
+	\item The experiment scheduler, which arbitrates the execution of user experiments in the node.
+	The scheduler runs permanently in the background and contacts periodically the scheduling server, sending ``heartbeats'' and checking for new schedules for the node.
 	When an experiment is not running, the scheduler may start the deployment of the containers for one or several experiments scheduled to be run in the immediate future, so that they are prepared on advance.
 	The scheduler checks the duration of the slot assigned to an experiment; if the experiment does not finish on time, it stops the whole container.
-	\item Synchronization (rsync) services to copy data files to the \monroe{} repository. This service copies user experiment results, the data collected by passive experiments and assorted metadata measurements. It runs continuously, transferring files to the server as they appear in the corresponding folders. This service uses the management interface, which is different of the interfaces available for the experiments. However, the management interface may share in some cases the same subscriber contract with one of the experiment interfaces; operators might restrict the total bandwidth available for all the SIMs linked to the same contract. Additionally, two modems (management plus experiment) using the same operator antenna may somehow affect the bandwidth available for the experiment. Therefore, experimenters should be aware of the small amount of data that can be transferred by this service in parallel to their experiments.
-	\item Several systems run continuously in the background gathering information on the status of diverse components. Examples include a service to read the signal strength and network configuration of each of the experiment modems, the GPS data and various node parameters such as CPU load, memory usage or CPU temperature. These services run continuously in the background with a frequency that varies from one second up to several minutes. Although their impact on user experiments should be minimal, their existence must be known by the experimenters.
-	\item In addition to the services that gather metadata, \monroe{} nodes keep several containers active all the time. These containers run experiments that are deemed basic for the \monroe{} platform and include:
+	\item Synchronization (rsync) services to copy data files to the \monroe{} repository.
+	This service copies user experiment results, the data collected by passive experiments and assorted metadata measurements.
+	It runs continuously, transferring files to the server as they appear in the corresponding folders.
+	This service uses the management interface, which is different from the interfaces available for the experiments.
+	However, the management interface may share in some cases the same subscriber contract with one of the experiment interfaces; operators might restrict the total bandwidth available for all the SIMs linked to the same contract.
+	Additionally, two modems (management plus experiment) using the same operator antenna may somehow affect the bandwidth available for the experiment.
+	Therefore, experimenters should be aware of the small amount of data that can be transferred by this service in parallel to their experiments.
+	\item Several systems run continuously in the background gathering information on the status of diverse components.
+	Examples include a service to read the signal strength and network configuration of each of the experiment modems, the GPS data and various node parameters such as CPU load, memory usage or CPU temperature.
+	These services run continuously in the background with a frequency that varies from one second up to several minutes.
+	Although their impact on user experiments should be minimal, their existence must be known by the experimenters.
+	\item In addition to the services that gather metadata, \monroe{} nodes keep several containers active all the time.
+	These containers run experiments that are deemed basic for the \monroe{} platform and include:
 	\begin{itemize}
-		\item A ping experiment. Container number \num{1} executes continuously an ICMP ping operation to a fixed external server (currently, Google's DNS at 8.8.8.8). The RTT values are collected and transferred to the servers. The ping experiment runs continuously with a frequency of one second, for every interface.
-		\item A bandwidth measurement test, which periodically downloads an object using the HTTP protocol to measure the achievable bandwidth. The test runs on each interface. The periodicity of this experiment and whether it can be run while user experiments are being executed are yet to be decided.
-		\item A container that periodically executes a full paris-traceroute to several popular websites and records information about all the intermmediate hops. This container will in principle be run three times per day, but the interactions with user experiments are yet to be determined.
-		\item A container that runs Tstat, the passive monitoring tool that collects, for each interface, detailed flow level statistics. The Tstat container generates no traffic; flow level data is synchronized to the \monroe{} repository using the standard synchronization process described above.
+		\item A ping experiment.
+		Container number \num{1} executes continuously an ICMP ping operation to a fixed external server (currently, Google's DNS at 8.8.8.8).
+		The RTT values are collected and transferred to the servers.
+		The ping experiment runs continuously with a frequency of one second, for every interface.
+		\item A container that runs Tstat, the passive mPlane monitoring probe that collects, for each interface, detailed flow level statistics.
+		The Tstat container generates no traffic; flow level data is synchronized to the \monroe{} repository using the standard synchronization process described above.
+	\end{itemize}
+	\item Finally, some built-in \monroe{} experiments run as scheduled containers.
+	These experiments will not run at the same time than user experiments:
+	\begin{itemize}
+		\item A bandwidth measurement test, which periodically downloads an object using the HTTP protocol to measure the achievable bandwidth.
+		The test runs on each interface.
+		The periodicity of this experiment and whether it can be run while user experiments are being executed are yet to be decided.
+		\item A container that periodically executes a full paris-traceroute to several popular websites and records information about all the intermediate hops.
+		This container will in principle be run several times per day, but the interactions with user experiments are yet to be determined.
 	\end{itemize}
 \end{itemize}
 
 \subsection{Overview of the experimental workflow}
 
-Experiments conducted in the \monroe{} platform follow the workflow shown in Figure~\ref{fig:ExperimentWorkflow}.
-They consist of three phases: Experiment design, testing and experimentation.
+Experiments conducted in the \monroe{} platform follow the workflow shown in Figure~\ref{fig:ExperimentWorkflow}, which consists of three phases: Experiment design, testing and experimentation.
 During the experiment design phase, the experiment goals and properties are defined and the container required to deploy it in \monroe{} nodes is configured.
 During the testing phase, the container is executed on nodes specifically devoted to testing new experiments.
 If the experiment passes all the safety and behavior tests, a \monroe{} manager will digitally sign the container image.
@@ -226,10 +247,10 @@ Finaly, the experimenter is free to schedule the experiment container on any nod
 \subsection{General experiment notes}
 \label{subsec:generalExperimentNotes}
 
-MONROE experiments run inside a Docker container under the root user of the container.
-Therefore, the experimenters can design any kind of experiment within the security restrictions of the platform, including the configuration of routing tables, stopping or starting interfaces and executing any kind of applications.
+\monroe{} experiments run under the root user of a Docker container.
+Therefore, experimenters can design any kind of experiment within the security restrictions of the platform, including the configuration of routing tables, stopping or starting interfaces and executing any kind of applications.
 We assume the reader is familiar with the Docker technology.
-If not, we strongly suggest getting used to it by accessing the documentation at \url{https://docs.docker.com/engine/understanding-docker/}~.
+Otherwise, we suggest getting used to it by accessing the documentation at \url{https://docs.docker.com/engine/understanding-docker/}~.
 
 Creating and using containers is a two-step process.
 At design time, the experimenters create the image for the container in their local machine using a container-creation script.
@@ -257,7 +278,7 @@ Preparing a new container from \monroe{}'s base image is an easy process:
 		You will have to run docker as root unless you add yourself to the docker group.
 
 		Mac users: Download and install ``Docker for MAC'' (\url{https://www.docker.com/products/docker#/mac}) or the ``Docker Toolbox'' (\url{https://docs.docker.com/toolbox/overview/}), according to your OS version.
-	\item Test Docker installation with the `Hello world!' example:
+	\item Test the Docker installation with the `Hello world!' example:
 		{\VerbatimFont\begin{verbatim}
 			$ sudo docker run hello-world
 			Unable to find image 'hello-world:latest' locally
@@ -294,7 +315,7 @@ Preparing a new container from \monroe{}'s base image is an easy process:
 			  #!/bin/bash
 			  ls -lah > /monroe/results/listing.txt
 		\end{verbatim}}
-		Any files that your experiment creates in \identifier{/monroe/results} will be retrieved after its completion and delivered to the repository, where you will be able to finally retrieve them.
+		Any files that your experiment creates in \identifier{/monroe/results} are delivered to the repository, where you will be able to retrieve them.
 		\emph{Writes to any other part of the filesystem will be lost once the experiment is finished.}
 		In periodic schedules, no data will survive from one execution to the next (i.e., the container is loaded fresh before each execution).
 		If result persistence is needed, the experimenter will have to supply it by downloading the needed files from the network during the experiment itself.
@@ -338,7 +359,7 @@ Preparing a new container from \monroe{}'s base image is an easy process:
 			docker login && docker tag ${CONTAINER} ${CONTAINERTAG} && docker push ${CONTAINERTAG} && \
 			    echo "Finished uploading ${CONTAINERTAG}"					
 		\end{verbatim}}
-		$\rightarrow$During the prototype phase of the system, please follow these additional steps to make your container available:
+		During the development phase of your experiment, follow these steps to make your container accessible for the testing nodes:
 		\begin{itemize}
 			\item Create an account at Docker Hub.
 			\item Create a private repository (you can create one container as private; no limits for public ones).
@@ -408,7 +429,8 @@ Preparing a new container from \monroe{}'s base image is an easy process:
 		The docker command line allows you to specify a mapping between a directory inside the docker image and one in the host system.
 		In this case, we have mapped \identifier{/monroe/results} from the container to \identifier{/run/shm/my\-results}.
 		This is useful if you are running the container locally in a normal PC for debugging purposes.
-		IMPORTANT: This process shows how to build and run a container \emph{locally} in your workstation.
+		
+		\textbf{IMPORTANT:} This process shows how to build and run a container \emph{locally} in your workstation.
 		However, experimenters do not have direct access to the \monroe{} nodes.
 		Therefore, to execute your experiment \emph{in} a \monroe{} node, you will follow the process just up to the \identifier{sudo ./push.sh} step and then use the web interface to upload and schedule the container into the nodes.
 \end{enumerate}
@@ -477,7 +499,7 @@ For easier reference, Table~\ref{tab:installedPackages} in Appendix~\ref{app:ins
 
 \subsection{Optional interactive debugging in \monroe{} nodes}
 To make the process of debugging experiments in the nodes, a small number of development nodes will be supplied.
-Experimenters will be able to schedule their containers to one of these nodes (even before getting their container signed) and, once the container is started, connect to it through an inverse SSH tunnel.
+Experimenters will be able to schedule their containers to one of these nodes (even before getting their container signed) and, once the container is started, connect to it through a reverse SSH tunnel.
 Then, they will be able to interactively modify their scripts or applications and execute them until the allocated slot expires.
 
 The exact technical procedures and reservation policies are still to be defined by the \monroe{} consortium.
@@ -491,7 +513,8 @@ To submit your experiment for testing, you have to use the web interface specify
 \label{subsec:deployment}
 \monroe{}'s scheduling system will automatically deploy experiments to the nodes before their execution time.
 The nodes will fetch the container image from the Docker repository, and the size of the download will be accounted in your data quota.
-Notice that in the case of periodic experiments, each time an experiment is run, the Docker container will possibly be re-downloaded and its costs will be accounted in your quota.
+Notice that in the case of periodic experiments, each time an experiment is run, the Docker container may have to be re-downloaded and its costs will be accounted in your quota.
+
 
 %------------------------------------------------------------%
 %------------------------------------------------------------%
@@ -624,7 +647,7 @@ If the starting date is fixed, the user can introduce it in the field ``Start.''
 All dates are introduced as UTC times; the interface presents alongside the corresponding local time for the user's browser.
 The scheduler will then try to satisfy the requirements.
 
-Alternatively, if the starting date is not relevant, the user may leave this field empty and press the button ``Check availability'' to check the earliest available slot (please, add at least ten minutes to the proposed time to allow for container deployment into the nodes).
+Alternatively, if the starting date is not relevant, the user may leave this field empty and press the button ``Check availability'' to check the earliest available slot (add at least ten minutes to the proposed time to allow for container deployment into the nodes).
 If the user just wants to submit the experiment as soon as possible, they can just mark the option ``As soon as possible'' and leave the other fields empty when pressing the ``Submit'' button.
 
 Additionally, the user may specify the following restrictions (Figure~\ref{fig:newExperimentFilters}):
@@ -636,13 +659,13 @@ Additionally, the user may specify the following restrictions (Figure~\ref{fig:n
 	Currently available node types are deployed or testing.
 	The ``testing'' nodes are reserved for experiments that must still be verified by a \monroe{} administrator.
 	\item [Node IDs:] If the experimenter wants to use a set of specific nodes, for example, to repeat one experiment under the very same conditions, it is possible to introduce a comma-separated list of required nodes, instead of accepting any available ones.
-	\item [Required interfaces and active-data quota:] By default, experiments do not have access to the node network interfaces.
-	The experimenter must explicitly select those interfaces that they want to be available for their container.
-	The selected interfaces will be mapped one-to-one from the physical ones.
-	The experimenter must also specify the active-data quota for each interface, that is, the maximum amount of data that each interface can use.
-	The scheduler multiplies this value by the number of interfaces used and checks the result against the quota available for the user.
+	\item [Active-data quota:] The experimenter must specify the active-data quota for each interface, that is, the maximum amount of data that each interface can use.
+	The scheduler checks this value against the quota available for the user.
 	\item [Log files quota:] The user may want to place an estimate on the maximum amount of data that may be generated as result files in \identifier{/monroe/results}.
 	This is important because the size of the results is also counted against the user quota.
+	\item [Deployment-storage quota]: This is the size allocated for the container file system in the node.
+	Bigger sizes require more time to deploy.
+	The maximum limit is \SI{1}{\giga\byte}.
 	
 	\item [Recurrence:] \monroe{}'s scheduler allows to specify experiments that need to be repeated periodically.
 	In that case, the user has to specify the repetition period ($\ge \SI{3600}{\second}$) and the final stopping date.
@@ -683,7 +706,7 @@ Figure~\ref{fig:newExperimentCheckAvailability} shows the answer of the schedule
 \begin{figure}[tp]
 	\centering
 	\includegraphics[width=1.0\textwidth]{NewExperimentCheckAvailability.png}
-	\caption{The scheduler may supply hints on the scheduling availability, including the earliest starting date that is possible, the end of the availability period for the required resources and the maximum number of nodes, with the specified requirements, that the experiment could reserve. In this example, the experiment can start on ``2016-05-18 14:45:00 UTC'' and can last until ``2016-06-18 14:44:00 UTC.'' The experiment can be scheduled with up to 109 nodes during this period.}
+	\caption{The scheduler may supply hints on the scheduling availability, including the earliest starting date that is possible, the end of the availability period for the required resources and the maximum number of nodes, with the specified requirements, that the experiment could reserve. In this example, the experiment can start on ``2017-02-28 16:04:08 UTC'' and can last until ``2017-02-28 16:45:02 UTC.'' The experiment can be scheduled with up to 36 nodes during this period.}
 	\label{fig:newExperimentCheckAvailability}
 \end{figure}
 
@@ -705,7 +728,7 @@ All the active (i.e., not completed) experiments for the user are shown.
 Experiments that have not yet been started can be canceled and deleted.
 However, the scheduler will try to stop experiments that have already started, but they will not be deleted from the list.
 
-Clicking on any experiment displays the details for its individual schedules at the bottom of the page.
+Clicking on any experiment displays the details for its individual schedules.
 There, the number of schedules that are defined but not yet deployed, the ones that are deployed and ready to be started, the ones that are currently running, etc., is summarized.
 One line is presented for each individual schedule on each \monroe{} node.
 Table~\ref{tab:experimentStates} explains the states in which an individual task may be.
@@ -770,11 +793,11 @@ In this way, the experimenter can retrieve result files even for partial experim
 	\end{figure}
 
 In addition, the experiment may use any network functionalities to communicate with outside servers as needed (e.g., \identifier{scp} some files to an external server).
-In order to guarantee a better privacy, private keys should be restricted to the experiments and discarded after a reasonable time.
+In order to improve safety, private keys should be restricted to the experiments and discarded after a reasonable time.
 Additionally, instead of saving your keys in the container itself, you may want to pass them as additional options during experiment scheduling.
 The values will be available during container execution as a JSON file at \identifier{/monroe/config}.
 Notice that this file is created by the node scheduler.
-The same effect is achievable manually when the containers are run manually in user development nodes adding the \identifier{-v} option to the command line.
+The same effect is achievable when the containers are run manually in user development nodes adding the \identifier{-v} option to the command line.
 To map both a locally created config file and the results folder of the container to a node folder, in development nodes without a scheduler, the following command line fragment may be used:\footnote{Thanks to Eneko Atxutegi Narbona and Jonas Karlsson for pointing this out.}
 \begin{verbatim}
 -v /monroe/results:/monroe/results -v /monroe/config:/monroe/config:ro
@@ -789,7 +812,8 @@ The files can be accessed at the following URL (a valid user certificate is need
 The dump files should be available every day after 12:00 CET (24-hour format).
 Each file covers the period [00:00, 00:00) GMT.
 
-Our servers run on CET time, but metadata timestamps, and thus CSV filenames, use GMT. Thus, to cover ``a day'' of metadata using, e.g., the local time in Norway, two CSV files need to be combined.
+Our servers run on CET time, but metadata timestamps use GMT.
+Therefore, to cover ``a day'' of metadata using, e.g., the local time in Norway, two CSV files need to be combined.
 During Winter time, the needed metadata is in the period [day$_0$:01:00, day$_1$:01:00).
 During Summer time, the needed metadata is in the period [day$_0$:02:00, day$_1$:02:00).
 
@@ -840,7 +864,9 @@ To offer a consistent view of the platform resources, whereas allowing flexibili
 	\item [\textbf{eth0}:] Ethernet (wired) network connection, when available.
 \end{enumerate*}
 %For a given country, the platform guarantees that a given SIM card index does always correspond to the same operator, unless a change of operators is performed at some future point.
-For a given country, the platform guarantees that a given op$_i$ does always correspond to the same operator.
+The platform guarantees that a given op$_i$ corresponds to the same operator during experiment execution.
+However, the assignment may change between nodes in the same country or even between successive executions in the same node.
+Therefore, experiments must check the metadata stream to select the correct interface.
 
 Under some circumstances, the mobile devices used in the \monroe{} nodes may loose connectivity, reset themselves or undergo any other process that makes them temporarily unavailable for the experiments.
 To identify and tackle with these situations, experimenters are encouraged to build ``robust'' experiments subscribing to the corresponding metadata streams.
@@ -978,8 +1004,7 @@ Currently, the collected metadata includes:
 \begin{itemize*}
 	\item Node GPS.
 	\item Node sensors (CPU temp) and probes (load, memory usage).
-	\item Modem events.
-	\item Modem connectivity status.
+	\item Modem status and events.
 	\item Continuous and scheduled internal experiments:
 	\begin{itemize*}
 		\item RTT (through ping).
@@ -1017,11 +1042,6 @@ The following and some examples of the information received in the metadata stre
 		"\textbf{InternalIPAddress}": "192.168.0.153", "\textbf{Operator}": "YOIGO", \\
 		"\textbf{ICCID}": "8934041514050774002", "\textbf{IMSI}": "214040113950108"\}}
 	
-	\item Connectivity:\\
-	\texttt{\footnotesize\{"\textbf{DataId}": "MONROE.META.CONNECTIVITY", "\textbf{InterfaceName}": "usb2", "\textbf{SequenceNumber}": 41412, \\
-		"\textbf{DataVersion}": 1, "\textbf{Timestamp}": 1465805641, "\textbf{NodeId}": "54", "\textbf{MCCMNC}": 21404, \\
-		"\textbf{Mode}": 6, "\textbf{RSSI}": -80, "\textbf{ICCID}": "8934041514050774002"\}}
-	
 	\item GPS:\\
 	\texttt{\footnotesize\{"\textbf{DataId}": "MONROE.META.DEVICE.GPS", "\textbf{SequenceNumber}": 34164, "\textbf{DataVersion}": 1, \\
 		"\textbf{Timestamp}": 1465805718, "\textbf{Altitude}": -1455.900024, "\textbf{NodeId}": "63", \\
@@ -1048,7 +1068,6 @@ Metadata and internal experiment results follow a JSON structure, as detailed in
 		\toprule
 		\textbf{TOPIC} & \textbf{DESCRIPTION} \\
 		\midrule
-		*.CONNECTIVITY.iccid & Interface, connection events, IP \\
 		*.DEVICE.MODEM.iccid.UPDATE	& \\
 		*.DEVICE.MODEM.iccid.MODE & \\
 		*.DEVICE.MODEM.iccid.SIGNAL	& \\
@@ -1293,7 +1312,7 @@ The user can check the state of the nodes under the tab ``Resources.'' Figure~\r
 \begin{figure}[tp]
 	\centering
 	\includegraphics[width=1\textwidth]{Resources.png}
-	\caption{Status of the \monroe{} nodes.}
+	\caption{Status of the \monroe{} nodes. The screen capture shows all types of nodes in Spain. The green approval sign (``thumbs-up'') close to the node IDs indicates that this node is capable of executing experiments. Clicking on the ``Location'' link for a node opens a Google Maps page showing the location of the node. Finally, the bottom part of the screen shows a ``map'' of nodes that allows users and \monroe{} administrators to quickly identify available (and problematic) nodes in the platform.}
 	\label{fig:Resources}
 \end{figure}
 
@@ -1311,6 +1330,7 @@ The source code for the examples is publicly available at \url{https://github.co
 
 %------------------------------------------------------------%
 \subsection{Example template}
+\label{subsec:exampleTemplate}
 
 This experiment template provides an extensive example to show the capabilities of the \monroe{} platform.
 The experiment will download a url (file) over http using \identifier{curl} from a configurable operator while at the same time recording the GPS positions of the node.
@@ -1590,72 +1610,8 @@ If the reply was not received (Bytes and RRR values are not present):
 \subsection{Experiment: http\_download}
 
 This is a periodically scheduled experiment that monitors the download speed of each MBB operator on the node.
-The experiment will, over each MBB operator in sequence, download the specified url (file) with \identifier{curl} (http), presenting one result per interface. 
-
-\subsubsection{Usage}
-The experiment will execute a statement similar to running \identifier{curl} on each interface with the following command line:
-
-{\VerbatimFont
-	\begin{verbatim}
-	curl -o /dev/null --raw --silent --write-out "{ Host: %{remote_ip}, Port :%{remote_port},
-	Bytes: %{size_download}, Speed: %{speed_download}, TotalTime: %{time_total},
-	SetupTime: %{time_starttransfer}, Url: %{url_effective} }" --interface IFNAME --max-time 3600
-	--range 0-3071 http://193.10.227.25/test/1000M.zip
-	\end{verbatim}}
-
-The default parameter values are:
-
-{\VerbatimFont
-	\begin{verbatim}
-	{
-	"guid": "no.guid.in.config.file",                  # Created by the scheduler
-	"url": "http://193.10.227.25/test/1000M.zip",
-	"size": 3*1024,                                    # Maximum size in Kbytes to download
-	"time": 3600,                                      # Maximum time in seconds for a download
-	"zmqport": "tcp://172.17.0.1:5556",
-	"modem_metadata_topic": "MONROE.META.DEVICE.MODEM",
-	"dataversion": 2,
-	"dataid": "MONROE.EXP.HTTP.DOWNLOAD",
-	"nodeid": "fake.nodeid",
-	"meta_grace": 120,                                 # Grace period to wait for interface metadata
-	"exp_grace": 120,                                  # Grace period before killing the experiment
-	"ifup_interval_check": 5,                          # Interval to check if interface is up
-	"time_between_experiments": 30,
-	"verbosity": 2,                                    # 0="Mute", 1=error, 2=Information, 3=verbose
-	"resultdir": "/monroe/results/",
-	"modeminterfacename": "InternalInterface",
-	"disabled_interfaces": ["lo", "metadata", "eth0",
-	"wlan0"],                  # Interfaces to NOT run the experiment on
-	"interfaces_without_metadata": ["eth0", "wlan0"]   # Manual metadata on these interfaces
-	}
-	\end{verbatim}}
-
-\subsubsection{Output}
-
-The experiment will produce a single-line JSON object for each interface similar to this:
-
-{\VerbatimFont
-	\begin{verbatim}
-	{
-	"Guid": "313.123213.123123.123123",              # exp_config["guid"]
-	"Timestamp": 23123.1212,                         # time.time() when curl download starts
-	"Iccid": 2332323,                                # meta_info["ICCID"]
-	"Operator": "Telia",                             # meta_info["Operator"]
-	"DownloadTime": 49.12,                           # "TotalTime" - "SetupTime"
-	"SequenceNumber": 1,                             # Static 
-	"Host": "193.10.227.25",
-	"Port": "80",
-	"Speed": 256.2,
-	"Bytes": 101,
-	"TotalTime": 50.1,
-	"SetupTime": 3, 
-	"Url": "http://193.10.227.25/test/1000M.zip",
-	"NodeId" : "9",                                  # exp_config["nodeid"]
-	"DataId": "MONROE.EXP.HTTP.DOWNLOAD",
-	"DataVersion": 2,
-	"ErrorCode": 0                                   # curl command error code.
-	}
-	\end{verbatim}}
+The experiment will, over each MBB operator in sequence, download the specified url (file) with \identifier{curl} (http), presenting one result per interface.
+The \monroe{} experiment template described in Section \ref{subsec:exampleTemplate} corresponds to this experiment, therefore, it is not further detailed here.
 
 
 %------------------------------------------------------------%
