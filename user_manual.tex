@@ -1025,17 +1025,17 @@ The following and some examples of the information received in the metadata stre
 	\texttt{\footnotesize\{"\textbf{DataId}": "MONROE.META.NODE.SENSOR", "\textbf{softirq}": "205270", "\textbf{SequenceNumber}": 48581,\\
 		"\textbf{DataVersion}": 1, "b": "1059270", "b": "4885494", "\textbf{guest}": "0", "\textbf{NodeId}": "54", \\
 		"\textbf{idle}": "42657942", "\textbf{user}": "10480984", "\textbf{irq}": "0", "\textbf{steal}": "0", \\
-		"\textbf{Timestamp}": 1465786966, "\textbf{nice}": "3063"\}}\\~\\
+		"\textbf{Timestamp}": 1465786966.123456, "\textbf{nice}": "3063"\}}\\~\\
 	\texttt{\footnotesize\{"\textbf{DataId}": "MONROE.META.NODE.SENSOR", "\textbf{SequenceNumber}": 48567, "\textbf{DataVersion}": 1,\\
-		"\textbf{Timestamp}": 1465786961, "\textbf{percent}": "65.98", "\textbf{NodeId}": "54", "\textbf{current}": "302234", \\
+		"\textbf{Timestamp}": 1465786961.123456, "\textbf{percent}": "65.98", "\textbf{NodeId}": "54", "\textbf{current}": "302234", \\
 		"\textbf{start}": "1465484726", "\textbf{total}": "5246545.72", "\textbf{id}": "39"\}}\\~\\
 	\texttt{\footnotesize\{"\textbf{DataId}": "MONROE.META.NODE.SENSOR", "\textbf{SequenceNumber}": 48460, "\textbf{DataVersion}": 1,\\
-		"\textbf{Timestamp}": 1465786926, "\textbf{apps}": "3632746496", "\textbf{NodeId}": "54", "\textbf{free}": "483119104", \\
+		"\textbf{Timestamp}": 1465786926.123456, "\textbf{apps}": "3632746496", "\textbf{NodeId}": "54", "\textbf{free}": "483119104", \\
 		"\textbf{swap}": "0"\}}
 	
 	\item Modem events:\\
 	\texttt{\footnotesize\{"\textbf{DataId}": "MONROE.META.DEVICE.MODEM", "\textbf{InterfaceName}": "usb2", "\textbf{CID}": 72209509,\\
-		"\textbf{DeviceState}": 3, "\textbf{SequenceNumber}": 33548, "\textbf{DataVersion}": 1, "\textbf{Timestamp}": 1465803136, \\
+		"\textbf{DeviceState}": 3, "\textbf{SequenceNumber}": 33548, "\textbf{DataVersion}": 1, "\textbf{Timestamp}": 1465803136.123456, \\
 		"\textbf{NWMCCMNC}": 21404, "\textbf{Band}": 3, "\textbf{RSSI}": -80, "\textbf{IPAddress}": "10.33.101.173", \\
 		"\textbf{IMSIMCCMNC}": 21404, "\textbf{DeviceMode}": 5, "\textbf{NodeId}": "54", "\textbf{IMEI}": "864154023645179", \\
 		"\textbf{RSRQ}": -8, "\textbf{RSRP}": -85, "\textbf{LAC}": 28014, "\textbf{Frequency}": 1800, \\
@@ -1044,7 +1044,7 @@ The following and some examples of the information received in the metadata stre
 	
 	\item GPS:\\
 	\texttt{\footnotesize\{"\textbf{DataId}": "MONROE.META.DEVICE.GPS", "\textbf{SequenceNumber}": 34164, "\textbf{DataVersion}": 1, \\
-		"\textbf{Timestamp}": 1465805718, "\textbf{Altitude}": -1455.900024, "\textbf{NodeId}": "63", \\
+		"\textbf{Timestamp}": 1465805718.123456, "\textbf{Altitude}": -1455.900024, "\textbf{NodeId}": "63", \\
 		"\textbf{Longitude}": -3.777019, "\textbf{NMEA}":\\ "\$GPGGA,081518.0,4020.002011,N,00346.621107,W,1,02,500.0,-1455.9,M,53.0,M,,*5D\textbackslash{}r\textbackslash{}n",\\
 		"\textbf{SatelliteCount}": 2, "\textbf{Latitude}": 40.333366\}}
 	
@@ -2533,6 +2533,9 @@ The following description of metadata topics and fields is included here for con
 The updated version is kept at:
 \url{https://github.com/MONROE-PROJECT/Experiments/wiki/Metadata}
 
+DataVersion was set to \num{1} until beginning of March, 2017.
+It was then set to \num{2} to signal the transition in timestamps that most tables underwent, when their precision was changed from an integer number of seconds (e.g., \num{1400475869}) to the number of seconds and microseconds since the (UNIX) Epoch (e.g., \num{1400475869.123456}).
+
 {\scriptsize
 \begin{longtable}{p{3cm}p{12cm}}
 	\caption{Field description for metadata topic ``MONROE.META.DEVICE.MODEM''.}\label{tab:metaDeviceModem}\\
@@ -2545,9 +2548,9 @@ The updated version is kept at:
 	\endhead
 	%
 	NodeId & Node numerical ID.\\
-	Timestamp & Entry timestamp (in seconds since UNIX epoch).\\
+	Timestamp & Entry timestamp (in seconds since UNIX epoch with microsecond precision).\\
 	DataId & Metadata topic.\\
-	DataVersion & Set to \num{1}.\\
+	DataVersion & Last version is \num{2}.\\
 	SequenceNumber & Monotonically increasing message counter.\\
 	InterfaceName & Name of the interface in the \monroe{} node, e.g., ``usb0'', ``usb1'', ``usb2'', ``eth0'', \ldots\\
 	InternalInterface & Name of the interface inside the containers, e.g., ``op0'', ``op1'', ``op2'', ``eth0'', ``wlan0'', \ldots Experiments in containers have to bind to these interface names.\\
@@ -2591,9 +2594,9 @@ The updated version is kept at:
 		\endhead
 		%
 		NodeId & Node numerical ID.\\
-		Timestamp & Entry timestamp (in seconds since UNIX epoch).\\
+		Timestamp & Entry timestamp (in seconds since UNIX epoch with microsecond precision).\\
 		DataId & Metadata topic.\\
-		DataVersion & Set to \num{1}.\\
+		DataVersion & Last version is \num{2}.\\
 		SequenceNumber & Monotonically increasing message counter.\\		
 		Longitude & Decimal degrees (WGS84).\\
 		Latitude & Decimal degrees (WGS84).\\
@@ -2617,7 +2620,7 @@ The updated version is kept at:
 %		\endhead
 %		%
 %		NodeId & Node numerical ID.\\
-%		Timestamp           & Entry timestamp (in seconds since UNIX epoch).\\
+%		Timestamp           & Entry timestamp (in seconds since UNIX epoch with microsecond precision).\\
 %		DataId              & Metadata topic.\\
 %		DataVersion         & Set to \num{1}.\\
 %		SequenceNumber      & Monotonically increasing message counter.\\
@@ -2642,9 +2645,9 @@ The updated version is kept at:
 		\endhead
 		%
 		NodeId                  & Node numerical ID.\\
-		Timestamp               & Entry timestamp (in seconds since UNIX epoch).\\
+		Timestamp               & Entry timestamp (in seconds since UNIX epoch with microsecond precision).\\
 		DataId                  & Metadata topic.\\
-		DataVersion             & Set to \num{1}.\\
+		DataVersion             & Last version is \num{2}.\\
 		SequenceNumber          & Monotonically increasing message counter.\\
 		Running                 & Comma separated list of experiment GUIDs.\\		
 		Cpu                     & CPU temperature (\si{\degreeCelsius}).\\
@@ -2690,9 +2693,9 @@ The updated version is kept at:
 		\endhead
 		%
 		NodeId              & Node numerical ID.\\
-		Timestamp           & Entry timestamp (in seconds since UNIX epoch).\\
+		Timestamp           & Entry timestamp (in seconds since UNIX epoch with microsecond precision).\\
 		DataId              & Metadata topic.\\
-		DataVersion         & Set to \num{1}.\\
+		DataVersion         & Last version is \num{2}.\\
 		SequenceNumber      & Monotonically increasing message counter.\\		
 		EventType           & Watchdog.Failed: The system watchdog detected an error symptom.\\
 		                    & Watchdog.Repaired: The system watchdog resolved the issue.\\
@@ -2720,10 +2723,10 @@ The updated version is kept at:
 		%
 		NodeId          & Node numerical ID.\\
 		Guid            & Unique experiment identifier.\\
-		Timestamp       & Entry timestamp (in seconds since UNIX epoch).\\
+		Timestamp       & Entry timestamp (in seconds since UNIX epoch with microsecond precision).\\
 		SequenceNumber  & Monotonically increasing message counter.\\
 		DataId          & Metadata topic.\\
-		DataVersion     & Set to \num{1}.\\
+		DataVersion     & Last version is \num{2}.\\
 		Operator        & Operator name as reported by the network for the interface in which the experiment was run.\\
 		Iccid           & Internationally defined integrated circuit card identifier of the SIM card.\\		
 		Bytes           & Size of the ping message payload.\\
@@ -2746,10 +2749,10 @@ The updated version is kept at:
 		%
 		NodeId          & Node numerical ID.\\
 		Guid            & Unique experiment identifier.\\
-		Timestamp       & Entry timestamp (in fractional seconds since UNIX epoch).\\
+		Timestamp       & Entry timestamp (in seconds since UNIX epoch with microsecond precision).\\
 		SequenceNumber  & Monotonically increasing message counter.\\
 		DataId          & Metadata topic.\\
-		DataVersion     & Set to \num{1}.\\		
+		DataVersion     & Last version is \num{2}.\\		
 		Operator        & Operator name as reported by the network for the interface in which the experiment was run.\\
 		Iccid           & Internationally defined integrated circuit card identifier of the SIM card.\\		
 		TotalTime       & Total experiment execution time (in fractional seconds).\\
