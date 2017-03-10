@@ -832,6 +832,17 @@ Access credentials for this server will be provided as requested.
 This section discusses several considerations that experimenters must take into account when designing and running their experiments on the \monroe{} platform.
 
 %------------------------------------------------------------%
+\subsection{Node identification}
+\label{subsec:nodeIdentification}
+
+An experiment can identify the node it is running on by reading the contents of the \identifier{/etc/nodeid} file:
+{\VerbatimFont
+\begin{verbatim}
+cat /etc/nodeid
+54
+\end{verbatim}}
+
+%------------------------------------------------------------%
 \subsection{Communication during the experiment}
 \label{subsec:communicationDuringExperiment}
 
