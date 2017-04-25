@@ -625,7 +625,7 @@ The procedure for other browsers and platforms should be similar.
 \FloatBarrier
 \subsection{Resource allocation}
 \label{subsec:resourceAllocation}
-New instances of experiments are created, assigned resources and scheduled under the tab ``New.''
+The ``New'' tab allows assigning resources and scheduling new experiments.
 Here, the user will be presented with a page similar to Figure~\ref{fig:newExperimentBlank}.
 
 \begin{figure}[tp]
@@ -635,13 +635,13 @@ Here, the user will be presented with a page similar to Figure~\ref{fig:newExper
 	\label{fig:newExperimentBlank}
 \end{figure}
 
-To create a new experiment, the user must specify at least the following parameters:
+To create a new experiment, at least the following parameters must be specified:
 \begin{description}
 	\item [Name:] A representative experiment description.
-	\item [Script:] A Docker hub path for the experiment container. In the previous example, it would be \identifier{your\_\allowbreak docker\_\allowbreak account/my\_\allowbreak experiment.}
-	\item [Number of nodes:] The number of nodes that will execute the experiment.
+	\item [Script:] A Docker hub path for the experiment container. In the previous example, it would be \identifier{your\_\allowbreak docker\_\allowbreak account/my\_\allowbreak experiment.} Experiments on deployed nodes must be lodged in \monroe{}'s repository: \identifier{monroe1.cs.kau.se:5000/my\_experiment}.
+	\item [Number of nodes:] The number of nodes that must execute the experiment.
 	\item [Duration:] Length of the experiment execution, in seconds (excluding the time required to deploy the container).
-	The node will kill the experiment after this time. The minimum slot that can be reserved is $\SI{5}{\minute}$ and the maximum, $\SI{24}{\hour}$.
+	The node will kill the experiment after this time. The minimum slot that can be reserved is $\SI{5}{\minute}$ and the maximum, $\SI{24}{\hour}$. However, because of the scheduling of \monroe{} experiments, the maximum possible duration is in practice slightly less than three hours.
 \end{description}
 
 If the starting date is fixed, the user can introduce it in the field ``Start.''
@@ -658,21 +658,28 @@ Additionally, the user may specify the following restrictions (Figure~\ref{fig:n
 	%Some mobile nodes may have restricted availability.
 	%The ``testing'' nodes are reserved for experiments that must still be sanctioned by a \monroe{} administrator.
 	Currently available node types are deployed or testing.
-	The ``testing'' nodes are reserved for experiments that must still be verified by a \monroe{} administrator.
+	The testing nodes are reserved for experiments that must still be verified by a \monroe{} administrator.
+	Experiments on deployed nodes must be lodged in \monroe{}'s repository: \identifier{monroe1.cs.kau.se:5000/}.
+	\item [Node model:] Until complete retirement of the old \monroe{} nodes, experiments can run on old or new nodes. Eventually, all experiments will be run on new nodes.
+	\item [Number of interfaces:] New \monroe{} nodes come in pairs of co-located nodes, where one node (``head'') has two 4G interfaces, and the other (``tail'') has one 4G interface and one WiFi interface.
+	Specifying the number of required interfaces for the experiment restricts the type of nodes that can be selected by the scheduler:
+	\begin{itemize*}
+		\item One interface: The scheduler chooses only nodes with one 4G interface and WiFi (tails).
+		\item Two interfaces: The scheduler chooses only nodes with two 4G interfaces (heads).
+		\item Three interfaces: The scheduler chooses pairs of co-located nodes. In that case, the number of requested nodes must be even, as each pair is counted as two nodes. The assignment is atomic, i.e., either the complete pairs will be secured or the complete assignment will fail.
+	\end{itemize*}
+	The numbering of nodes follows the convention that the head in a pair receives number $n$ and the co-located tail receives number $n+1$, where $n$ is even.
 	\item [Node IDs:] If the experimenter wants to use a set of specific nodes, for example, to repeat one experiment under the very same conditions, it is possible to introduce a comma-separated list of required nodes, instead of accepting any available ones.
 	\item [Active-data quota:] The experimenter must specify the active-data quota for each interface, that is, the maximum amount of data that each interface can use.
 	The scheduler checks this value against the quota available for the user.
 	\item [Log files quota:] The user may want to place an estimate on the maximum amount of data that may be generated as result files in \identifier{/monroe/results}.
 	This is important because the size of the results is also counted against the user quota.
-	\item [Deployment-storage quota]: This is the size allocated for the container file system in the node.
+	\item [Deployment-storage quota:] This is the size allocated for the container file system in the node.
 	Bigger sizes require more time to deploy.
 	The maximum limit is \SI{1}{\giga\byte}.
-	
-	\item [Recurrence:] \monroe{}'s scheduler allows to specify experiments that need to be repeated periodically.
-	In that case, the user has to specify the repetition period ($\ge \SI{3600}{\second}$) and the final stopping date.
-	The scheduler will treat each repetition as a different experiment and will try to satisfy the requirements for each of them consecutively.
-	However, the operation is atomic:
-	Either all the repetitions are scheduled, or none are.
+	\item [Additional options:] The user may provide a set of comma separated key-value pairs.
+	These options will be appended to the JSON-formatted configuration file that can be read at run-time by the container at \identifier{/monroe/config}.
+	This mechanism enables experiment parameterization.
 \end{description}
 
 \begin{figure}[tp]
@@ -693,9 +700,17 @@ The experiments must respect several restrictions to be successfully scheduled:
 	\item Periodic experiments must have a period greater than \SI{3600}{\second}.
 	The finishing time must also obey the previous rule, that is, the last experiment instance in the recurrence must be scheduled in less than a month from the current time.
 	\item No experiment (or instance in a series) can last more than one day.
+	In practice, the longest period that an experiment will be awarded is less than \SI{3}{\hour}.
 	\item If a list of specific nodes and a starting date are given, the scheduler may be unable to grant the required resources.
 %	TODO: Find a way to ease the problem of finding a slot, with perhaps a time-line of resource availability.
 \end{itemize}
+
+\subsubsection{Recurrence}
+\monroe{}'s scheduler allows to specify experiments that need to be repeated periodically.
+In that case, the user has to specify the repetition period ($\ge \SI{3600}{\second}$) and the final stopping date.
+The scheduler will treat each repetition as a different experiment and will try to satisfy the requirements for each of them consecutively.
+However, the operation is atomic:
+Either all the repetitions are scheduled, or none are.
 
 \subsubsection{Checking availability}
 If the exact starting time is not relevant, the user can press the ``Check availability'' button.
@@ -857,8 +872,6 @@ The user can choose to bind explicitly from each command or application to a spe
 \subsection{Interface naming and binding, and default route}
 \label{subsec:interfaceNaming}
 
-$\Rightarrow$~\emph{This section contains technical details that are currently subject to evaluation by the \monroe{} consortium. Comments from experimenters on this section are welcome.}~$\Leftarrow$\\
-
 Experiments running in \monroe{} nodes have access to several network interfaces.
 By default, that is, if the experiment does not take any special configuration actions, the default route will be configured to one of the mobile broadband interfaces, if available.
 However, experimenters have the possibility of explicitly binding external tools or their programs to specific interfaces.
@@ -870,15 +883,14 @@ For example, the standard ``ping'' tool can be forced to use an specific interfa
 
 To offer a consistent view of the platform resources, whereas allowing flexibility for future changes in the platform configuration, the following naming scheme is used for each of the interfaces available for the experiments:
 \begin{enumerate*}
-	\item [\textbf{op0}:] First operator for the nodes in the given country.%First SIM card for the node.
-	\item [\textbf{op1}:] Second operator for the nodes in the given country.%Second SIM card for the node.
-	\item [\textbf{op2}:] Third operator for the nodes in the given country.%Third SIM card for the node.
+	\item [\textbf{op0}:] First mobile interface.
+	\item [\textbf{op1}:] Second mobile interface.
+	\item [\textbf{op2}:] Only for old nodes, third mobile interface.
 	\item [\textbf{eth0}:] Ethernet (wired) network connection, when available.
 \end{enumerate*}
-%For a given country, the platform guarantees that a given SIM card index does always correspond to the same operator, unless a change of operators is performed at some future point.
 The platform guarantees that a given op$_i$ corresponds to the same operator during experiment execution.
-However, the assignment may change between nodes in the same country or even between successive executions in the same node.
-Therefore, experiments must check the metadata stream to select the correct interface.
+However, \emph{the assignment may change} between nodes in the same country or even between successive executions in the same node.
+Therefore, \emph{experiments must check the metadata stream} to select the correct interface.
 
 Under some circumstances, the mobile devices used in the \monroe{} nodes may loose connectivity, reset themselves or undergo any other process that makes them temporarily unavailable for the experiments.
 To identify and tackle with these situations, experimenters are encouraged to build ``robust'' experiments subscribing to the corresponding metadata streams.
@@ -896,7 +908,7 @@ When an external tool that does not handle \identifier{ENODEV} (e.g., ``fping'')
 	\item Monitor the metadata for a \identifier{MODEM.*.CONNECTIVITY} message indicating that connectivity was lost, or monitor the interface list to check if the device disappears. Upon either event, start over at 2.
 \end{itemize*}
 	
-Experimenters should take notice that an interface may not only go down, but it may actually disappear from the list of available interfaces (if the modem has to be restarted, or anything similar happens in the USB stack).
+Experimenters should take notice that an interface may not only go down, but it may actually disappear from the list of available interfaces (e.g., if the modem has to be restarted).
 Even if it reappears soon after, any existing network connections on the old interface will fail with \identifier{ENODEV}. 
 	
 It is also possible to skip steps 1 and 2 when reconnecting to an interface after a failure, as the interface name corresponding to the desired operator is already known.
@@ -1319,7 +1331,8 @@ minicom -D /dev/ttyS0          ---or---          screen /dev/ttyS0 115200
 \section{Monitoring node status}
 \label{subsec:nodeStatus}
 
-The user can check the state of the nodes under the tab ``Resources.'' Figure~\ref{fig:Resources} shows an example of the information that is supplied.
+The user can check the state of the nodes under the tab ``Resources.'' Figure~\ref{fig:Resources} shows an example of the supplied information.
+Experimenters can use the information regarding operator codes and names to manually pick nodes with concrete operators.
 
 \begin{figure}[tp]
 	\centering
