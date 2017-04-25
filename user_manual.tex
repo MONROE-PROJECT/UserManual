@@ -9,6 +9,7 @@
 \usepackage{appendix}
 \usepackage{longtable}
 \usepackage{mdwlist}		% Defines itemize*, enumerate* y description*, which have less vertical spacing.
+\usepackage{placeins}		% To place float barriers. Use \FloatBarrier to flush them all.
 \newcommand{\VerbatimFont}{\footnotesize}
 \newcommand{\TableFont}{\footnotesize}
 \overfullrule=35pt % Remove this in the final version!!!
@@ -621,7 +622,7 @@ The procedure for other browsers and platforms should be similar.
 	
 \end{enumerate}
 
-
+\FloatBarrier
 \subsection{Resource allocation}
 \label{subsec:resourceAllocation}
 New instances of experiments are created, assigned resources and scheduled under the tab ``New.''
@@ -676,7 +677,7 @@ Additionally, the user may specify the following restrictions (Figure~\ref{fig:n
 
 \begin{figure}[tp]
 	\centering
-	\includegraphics[width=0.9\textwidth]{NewExperimentFilters.png}
+	\includegraphics[width=1.0\textwidth]{NewExperimentFilters.png}
 	\caption{Filters for node selection.}
 	\label{fig:newExperimentFilters}
 \end{figure}
@@ -719,7 +720,7 @@ Figure~\ref{fig:ExperimentsSummary} shows an example of a list of experiments.
 
 \begin{figure}[tp]
 	\centering
-	\includegraphics[width=0.925\textwidth]{ExperimentSummary.png}
+	\includegraphics[width=1.0\textwidth]{ExperimentSummary.png}
 	\caption{List of user experiments.}
 	\label{fig:ExperimentsSummary}
 \end{figure}
