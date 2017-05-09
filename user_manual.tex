@@ -1507,8 +1507,13 @@ minicom -D /dev/ttyS0          ---or---          screen /dev/ttyS0 115200
 \section{Monitoring node status}
 \label{subsec:nodeStatus}
 
-The user can check the state of the nodes under the tab ``Resources.'' Figure~\ref{fig:Resources} shows an example of the supplied information.
-Experimenters can use the information regarding operator codes and names to manually pick nodes with concrete operators.
+The state of the nodes can be checked under the tab ``Resources.''
+Figure~\ref{fig:Resources} shows an example of the supplied information.
+Experimenters can use the operator codes and names to manually pick nodes with concrete operators.
+
+Column ``Location'' opens a Google Maps window with the last known position of the node, when available.
+Similarly, column ``Graphs'' opens the visualization page for the selected node.
+There, experimenters can see the last known RTT and RSSI measures for the node, its current location and state.
 
 \begin{figure}[tp]
 	\centering
