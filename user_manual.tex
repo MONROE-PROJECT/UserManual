@@ -214,7 +214,7 @@ Every \monroe{} node runs, in addition to user experiments, the following backgr
 		\item A bandwidth measurement test, which periodically downloads an object using the HTTP protocol to measure the achievable bandwidth.
 		The test runs on each interface.
 		The periodicity of this experiment and whether it can be run while user experiments are being executed are yet to be decided.
-		\item A container that periodically executes a full paris-traceroute to several popular websites and records information about all the intermediate hops.
+		\item A container that periodically executes a paris-traceroute to several popular websites recording information about all the intermediate hops.
 		This container will in principle be run several times per day, but the interactions with user experiments are yet to be determined.
 	\end{itemize}
 \end{itemize}
@@ -278,7 +278,9 @@ Preparing a new container from \monroe{}'s base image is an easy process:
 		\end{verbatim}}
 		You will have to run docker as root unless you add yourself to the docker group.
 
-		Mac users: Download and install ``Docker for MAC'' (\url{https://www.docker.com/products/docker#/mac}) or the ``Docker Toolbox'' (\url{https://docs.docker.com/toolbox/overview/}), according to your OS version.
+		Mac users: Download and install ``Docker for MAC''\\
+		(\url{https://www.docker.com/products/docker#/mac})\\
+		or the ``Docker Toolbox''\\ (\url{https://docs.docker.com/toolbox/overview/}), according to your OS version.
 	\item Test the Docker installation with the `Hello world!' example:
 		{\VerbatimFont\begin{verbatim}
 			$ sudo docker run hello-world
@@ -418,7 +420,8 @@ Preparing a new container from \monroe{}'s base image is an easy process:
 			759d76df9ac7: Layer already exists
 			5f70bf18a086: Layer already exists
 			12e469267d21: Layer already exists
-			latest: digest: sha256:c855de65307191b4832b2ec60a4401c1b63424827c29149703c5d7ef07b519f7 size: 3001
+			latest: digest: sha256:c855de65307191b4832b2ec60a4401c1b63424827c29149703c5d7ef07b519f7
+			size: 3001
 			Finished uploading your-username/template
 		\end{verbatim}}
 	\item You can now test that your image runs correctly, even on your own PC (if the experiment logic and resource demands allow for it).
@@ -498,12 +501,18 @@ For example, assuming that you have a basic container that simply waits when run
 \end{verbatim}}
 For easier reference, Table~\ref{tab:installedPackages} in Appendix~\ref{app:installedPackages} gives a detailed listing of packages available in \identifier{monroe/base} at the time of writing this text.
 
-\subsection{Optional interactive debugging in \monroe{} nodes}
-To make the process of debugging experiments in the nodes, a small number of development nodes will be supplied.
-Experimenters will be able to schedule their containers to one of these nodes (even before getting their container signed) and, once the container is started, connect to it through a reverse SSH tunnel.
-Then, they will be able to interactively modify their scripts or applications and execute them until the allocated slot expires.
+\subsection{Optional interactive debugging}
+To speed up the process of debugging experiments in the nodes, three debugging paths are provided.
 
-The exact technical procedures and reservation policies are still to be defined by the \monroe{} consortium.
+First, experimenters can order (buy) a number of ``development'' nodes to be hosted locally in their premises.
+These nodes, which will not be accessible through the standard scheduler and user interface, can be accessed through local interfaces (eth, serial console) and provide root access.
+
+Second, and only for ``testing'' nodes, the user interface includes an option to provide an SSH public key to the container.
+Once the container starts, experimenters can connect to monitor experiment progress.
+The SSH session can extend until the container finishes or is stopped.
+
+Finally, a virtual machine containing a ``virtual \monroe{} node'' has been designed to ease development and debugging on a local PC.
+This virtual node replays metadata previously recorded from a real one.
 
 \subsection{Mandatory testing process}
 \label{subsec:testingProcess}
@@ -1201,7 +1210,8 @@ The following and some examples of the information received in the metadata stre
 	
 	\item Modem events:\\
 	\texttt{\footnotesize\{"\textbf{DataId}": "MONROE.META.DEVICE.MODEM", "\textbf{InterfaceName}": "usb2", "\textbf{CID}": 72209509,\\
-		"\textbf{DeviceState}": 3, "\textbf{SequenceNumber}": 33548, "\textbf{DataVersion}": 1, "\textbf{Timestamp}": 1465803136.123456, \\
+		"\textbf{DeviceState}": 3, "\textbf{SequenceNumber}": 33548, "\textbf{DataVersion}": 1, \\
+		"\textbf{Timestamp}": 1465803136.123456, \\
 		"\textbf{NWMCCMNC}": 21404, "\textbf{Band}": 3, "\textbf{RSSI}": -80, "\textbf{IPAddress}": "10.33.101.173", \\
 		"\textbf{IMSIMCCMNC}": 21404, "\textbf{DeviceMode}": 5, "\textbf{NodeId}": "54", "\textbf{IMEI}": "864154023645179", \\
 		"\textbf{RSRQ}": -8, "\textbf{RSRP}": -85, "\textbf{LAC}": 28014, "\textbf{Frequency}": 1800, \\
@@ -1788,7 +1798,7 @@ The mPlane protocol provides control and data interchange for passive and active
 It is built around a simple workflow that can interact with different frameworks to provide the results of the measurements.
 This package includes an mPlane proxy and generic configuration files for Tstat.
 
-mPlane captures traffic flow on all interfaces by means of the Tstat (\url{http://tstat.polito.it/}) probe.
+mPlane captures traffic flow on all interfaces with the Tstat (\url{http://tstat.polito.it/}) probe.
 The mPlane container is always running as one of the default experiments on all \monroe{} nodes.
 The Tstat passive traces are stored locally on the node and are accessible by the experimenters.
 A detailed description and the source code are available on github (\url{https://github.com/MONROE-PROJECT/mPlane}).
@@ -1977,7 +1987,7 @@ Paris-traceroute instances should be run sequentially and preferably when the no
 \subsection{\monroe{} example: headlessbrowsing}
 
 This experiment evaluates the performance of different HTTP protocols (HTTP1.1, HTTP1.1/TLS, HTTP2) using the headless Firefox browser.
-The experiment uses the Selenium browser-automation framework, which enables execution of web-browsing automation tests in different browsers such as Firefox and Chrome.
+It uses the Selenium browser-automation framework, which enables execution of web-browsing automation tests in different browsers such as Firefox and Chrome.
 The Selenium web-driver is used for Firefox.
 For a given url, HTTP protocol and source network interface, Selenium launches the native Firefox browser to visit that url.
 
