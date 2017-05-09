@@ -794,29 +794,29 @@ The following paragraphs describe how to install and use the tool.
 \subsubsection{Installation}
 
 Installation prerequisites:
-\begin{verbatim}
+{\VerbatimFont\begin{verbatim}
 sudo apt-get install python3 python3-setuptools python3-cryptography
 sudo pip install straight.plugin
-\end{verbatim}
+\end{verbatim}}
 
 \noindent From the directory that contains the tool sources:
-\begin{verbatim}
+{\VerbatimFont\begin{verbatim}
 python3 setup.py develop
-\end{verbatim}
+\end{verbatim}}
 
 \noindent The user certificate can be imported with:
-\begin{verbatim}
+{\VerbatimFont\begin{verbatim}
 $ monroe setup --cert MyCert.p12
 Enter passphrase:
 Your certificate files were stored in ~/.monroe
-\end{verbatim}
+\end{verbatim}}
 This feature depends on a recent version of OpenSSH.
 Alternatively, the cert/key files can be extracted manually and placed under \identifier{$\sim$/.monroe/}  with the names \identifier{mnrCrt.pem} and \identifier{mnrKey.pem}.
 
 \subsubsection{Usage}
 
 The tool has integrated help:
-\begin{verbatim}
+{\VerbatimFont\begin{verbatim}
 $ monroe -h
  usage: monroe [-h] Command ...
  
@@ -838,45 +838,41 @@ $ monroe -h
  scheduler
  delete     Deletes an experiment
  results    Downloads the results for an experiment
-\end{verbatim}
+\end{verbatim}}
 
 \noindent Correct installation of the tool can be tested trying to retrieve the user identification:
-\begin{verbatim}
+{\VerbatimFont\begin{verbatim}
 $ monroe whoami
-Authentication ID: 2, Name: MONROE Test user, Storage Quota 
-remaining: 49597346816 bytes
-\end{verbatim}
+Authentication ID: 2, Name: MONROE Test user, Storage Quota remaining: 49597346816 bytes
+\end{verbatim}}
 
 \noindent User quotas can be easily retrieved:
-\begin{verbatim}
+{\VerbatimFont\begin{verbatim}
 $ monroe quota
 2017-05-05 : Remaining time is 138888.00 hours.
 2017-05-05 : Remaining storage quota is 46.00 GB.
 2017-05-05 : Remaining data quota is 46.00 GB.
-\end{verbatim}
+\end{verbatim}}
 
 \noindent The tool allows retrieving the list of recent experiments:
-\begin{verbatim}
+{\VerbatimFont\begin{verbatim}
 $ monroe experiments
-Experiment ID: 6798 Name: mike test on new nodes Script: steven76/headless 
-   Summary: {u'aborted': 1}
-Experiment ID: 6799 Name: mike test on new nodes Script: steven76/headless
-   Summary: {u'aborted': 1}
-Experiment ID: 6800 Name: mike test on new nodes Script: steven76/headless
-   Summary: {u'aborted': 1}
-\end{verbatim}
+Experiment ID: 6798 Name: mike test on new nodes Script: steven76/headless Summary: {u'aborted': 1}
+Experiment ID: 6799 Name: mike test on new nodes Script: steven76/headless Summary: {u'aborted': 1}
+Experiment ID: 6800 Name: mike test on new nodes Script: steven76/headless Summary: {u'aborted': 1}
+\end{verbatim}}
 
 \noindent The results of an experiment can also be automatically retrieved:
-\begin{verbatim}
+{\VerbatimFont\begin{verbatim}
 $ monroe results --exp 6479
-\end{verbatim}
+\end{verbatim}}
 \noindent This command downloads the experiment results into \identifier{6479/sched\_id}, for all the task IDs associated to that experiment.
 
 For experiment creation, the tool supports defining SSH access to the container (in testing nodes), additional options and recurrence.
 Finally, the tool can be used as a library:
-\begin{verbatim}
+{\VerbatimFont\begin{verbatim}
 from monroe.core import *
-\end{verbatim}
+\end{verbatim}}
 
 
 %------------------------------------------------------------%
@@ -968,17 +964,8 @@ The user can choose to bind explicitly from each command or application to a spe
 \end{verbatim}}
 
 %------------------------------------------------------------%
-\subsection{Interface naming and binding, and default route}
+\subsection{Interface naming and default route}
 \label{subsec:interfaceNaming}
-
-Experiments running in \monroe{} nodes have access to several network interfaces.
-By default, that is, if the experiment does not take any special configuration actions, the default route will be configured to one of the mobile broadband interfaces, if available.
-However, experimenters have the possibility of explicitly binding external tools or their programs to specific interfaces.
-For example, the standard ``ping'' tool can be forced to use an specific interface with the following command:
-{\VerbatimFont
-\begin{verbatim}
-	ping -I eth0 host_name
-\end{verbatim}}
 
 To offer a consistent view of the platform resources, whereas allowing flexibility for future changes in the platform configuration, the following naming scheme is used for each of the interfaces available for the experiments:
 \begin{enumerate*}
@@ -989,7 +976,7 @@ To offer a consistent view of the platform resources, whereas allowing flexibili
 \end{enumerate*}
 The platform guarantees that a given op$_i$ corresponds to the same operator during experiment execution.
 However, \emph{the assignment may change} between nodes in the same country or even between successive executions in the same node.
-Therefore, \emph{experiments must check the metadata stream} to select the correct interface.
+Therefore, \emph{experiments must check the metadata stream} to select the correct interface associated to the desired operator.
 
 Under some circumstances, the mobile devices used in the \monroe{} nodes may loose connectivity, reset themselves or undergo any other process that makes them temporarily unavailable for the experiments.
 To identify and tackle with these situations, experimenters are encouraged to build ``robust'' experiments subscribing to the corresponding metadata streams.
@@ -999,10 +986,10 @@ If the experimenter writes their own code:
 	\item Subscribe to the metadata broadcast.
 	\item Wait for a \identifier{MODEM.*.UPDATE} message for the modem(s)/operators of interest.
 	\item Once this information is obtained, use the desired interface and store the results with the corresponding ICCID or operator name.
-	\item If the interface should disappear (\identifier{ENODEV} error, ``no such device''), start over at 2.
+	\item Should the interface disappear (\identifier{ENODEV} error, ``no such device''), start over at 2.
 \end{enumerate*}
 	
-When an external tool that does not handle \identifier{ENODEV} (e.g., ``fping''), replace step 4 by:
+When using an external tool that does not handle \identifier{ENODEV} (e.g., ``fping''), replace step 4 by:
 \begin{itemize*}
 	\item Monitor the metadata for a \identifier{MODEM.*.CONNECTIVITY} message indicating that connectivity was lost, or monitor the interface list to check if the device disappears. Upon either event, start over at 2.
 \end{itemize*}
@@ -1012,6 +999,62 @@ Even if it reappears soon after, any existing network connections on the old int
 	
 It is also possible to skip steps 1 and 2 when reconnecting to an interface after a failure, as the interface name corresponding to the desired operator is already known.
 It is still necessary to keep retrying to connect to the interface, until it comes up.
+
+%------------------------------------------------------------%
+\subsection{Interface binding}
+\label{subsec:binding}
+
+Experiments running in \monroe{} nodes have access to several network interfaces.
+By default, that is, if the experiment does not take any special configuration actions, the default route will be configured to one of the mobile broadband interfaces, if available.
+However, experimenters have the possibility of explicitly binding external tools or their programs to specific interfaces.
+Several options are available to bind an experiment to an interface.
+
+\begin{enumerate}
+	\item Most standard tools can be instructed to use an specific interface:
+	{	\VerbatimFont
+		\begin{verbatim}
+		ping -I op0 host_name
+		tcpdump --I op0 target
+		wget --bind-address ...
+		curl --interface ...
+		\end{verbatim}
+	}
+	
+	\item Explicit binding in the source code.
+	\begin{itemize}
+		\item In C:
+		{
+			\VerbatimFont
+			\begin{verbatim}
+			snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), "op0");
+			setsockopt(s, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr))
+			localaddr.sin_addr.s_addr = inet_addr("192.168.1.100");
+			bind(sockfd, (struct sockaddr *)&localaddr, sizeof(localaddr));
+			\end{verbatim}
+		}
+		\item In Python:
+		{
+			\VerbatimFont
+			\begin{verbatim}
+			s = socket.socket()
+			s.bind('192.168.1.152', 0))
+			\end{verbatim}
+		}
+	\end{itemize}
+	
+	\item Library overloading the \identifier{bind()} and \identifier{connect()} functions through \identifier{LD\_PRELOAD}:
+	
+	\url{http://www.ryde.net/code/bind.c.txt}
+	
+	\item Changing the default route:
+	{
+		\VerbatimFont
+		\begin{verbatim}
+		route del default gw ...; route add ...
+		\end{verbatim}
+	}
+\end{enumerate}
+
 
 %------------------------------------------------------------%
 \subsection{Metadata at run-time}
