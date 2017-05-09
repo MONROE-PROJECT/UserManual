@@ -781,6 +781,105 @@ However, other experiments may be designed to run continuously for a period of t
 In those cases, the ``Stopped'' state could actually be the correct ending state as intended by the experimenter.
 
 %------------------------------------------------------------%
+\FloatBarrier{}
+\subsection{Command Line Interface}
+\label{subsec:cli}
+
+The \monroe{} scheduler REST API is normally used through the provided WEB interface.
+However, experimenters can use it directly to improve task automation.
+A complete command-line tool is available at \url{https://github.com/ana-cc/monroe-cli}.%
+\footnote{The command-line interface tool has been provided by Ana Custura, from the University of Aberdeen Court, in the context of the MONROE-PREC project.}
+The following paragraphs describe how to install and use the tool.
+
+\subsubsection{Installation}
+
+Installation prerequisites:
+\begin{verbatim}
+sudo apt-get install python3 python3-setuptools python3-cryptography
+sudo pip install straight.plugin
+\end{verbatim}
+
+\noindent From the directory that contains the tool sources:
+\begin{verbatim}
+python3 setup.py develop
+\end{verbatim}
+
+\noindent The user certificate can be imported with:
+\begin{verbatim}
+$ monroe setup --cert MyCert.p12
+Enter passphrase:
+Your certificate files were stored in ~/.monroe
+\end{verbatim}
+This feature depends on a recent version of OpenSSH.
+Alternatively, the cert/key files can be extracted manually and placed under \identifier{$\sim$/.monroe/}  with the names \identifier{mnrCrt.pem} and \identifier{mnrKey.pem}.
+
+\subsubsection{Usage}
+
+The tool has integrated help:
+\begin{verbatim}
+$ monroe -h
+ usage: monroe [-h] Command ...
+ 
+ Monroe Cli
+ 
+ optional arguments:
+ -h, --help   show this help message and exit
+ 
+ Experiment:
+ The following commands can be used to create and submit experiments
+ 
+ Command      Description
+ create     Creates an experiment
+ whoami     Displays MONROE user details
+ quota      Displays MONROE quota details
+ experiments
+ Display recent experiments
+ setup      Specifies MONROE user certificate to use for accessing the
+ scheduler
+ delete     Deletes an experiment
+ results    Downloads the results for an experiment
+\end{verbatim}
+
+\noindent Correct installation of the tool can be tested trying to retrieve the user identification:
+\begin{verbatim}
+$ monroe whoami
+Authentication ID: 2, Name: MONROE Test user, Storage Quota 
+remaining: 49597346816 bytes
+\end{verbatim}
+
+\noindent User quotas can be easily retrieved:
+\begin{verbatim}
+$ monroe quota
+2017-05-05 : Remaining time is 138888.00 hours.
+2017-05-05 : Remaining storage quota is 46.00 GB.
+2017-05-05 : Remaining data quota is 46.00 GB.
+\end{verbatim}
+
+\noindent The tool allows retrieving the list of recent experiments:
+\begin{verbatim}
+$ monroe experiments
+Experiment ID: 6798 Name: mike test on new nodes Script: steven76/headless 
+   Summary: {u'aborted': 1}
+Experiment ID: 6799 Name: mike test on new nodes Script: steven76/headless
+   Summary: {u'aborted': 1}
+Experiment ID: 6800 Name: mike test on new nodes Script: steven76/headless
+   Summary: {u'aborted': 1}
+\end{verbatim}
+
+\noindent The results of an experiment can also be automatically retrieved:
+\begin{verbatim}
+$ monroe results --exp 6479
+\end{verbatim}
+\noindent This command downloads the experiment results into \identifier{6479/sched\_id}, for all the task IDs associated to that experiment.
+
+For experiment creation, the tool supports defining SSH access to the container (in testing nodes), additional options and recurrence.
+Finally, the tool can be used as a library:
+\begin{verbatim}
+from monroe.core import *
+\end{verbatim}
+
+
+%------------------------------------------------------------%
 %------------------------------------------------------------%
 %------------------------------------------------------------%
 
