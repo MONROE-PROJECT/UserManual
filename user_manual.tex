@@ -173,6 +173,60 @@ It first explains how the experiments must be prepared inside Docker containers,
 Then, it explains the basics of the web interface that allows provision of resources and the scheduling of experiment executions.
 Finally, it shows how the experiment results can be retrieved either directly from the experiment itself or from the repository provided by \monroe{}.
 
+\subsection{\monroe{} nodes hardware}
+
+The \monroe{} platform has gone through a complete process of analysis and redesign to adapt to the new hardware available in the market and overcome some of the issues encountered in the first design.
+The following paragraphs explain the main characteristics of each design.
+
+\subsubsection{First design}
+Originally, the \monroe{} platform presented a set of homogeneous nodes, each of them with three MiFis.
+The nodes were based on a PC Engines APU1D4 board with the following characteristics:
+\begin{itemize*}
+	\item \SI{1}{\giga\hertz} 64-bit dual core AMD Geode APU.
+	\item \SI{4}{\gibi\byte} RAM.
+	\item \SI{16}{\gibi\byte} SDD.
+	\item Three miniPCIe slots, one of which supports a 3G/4G modem.
+\end{itemize*}
+
+Each node had also one WiFi adaptor, an external USB hub with per-port-power-switching (PPPS) and three ZTE MF910 LTE CAT4 MiFis.
+Figure~\ref{fig:firstNodeDesign} shows the first design of the nodes.
+
+\begin{figure}[tp]
+	\centering
+	\includegraphics[width=0.75\textwidth]{SystemPicture1.png}
+	\caption{First system design. 1) PC Engines APU board. 2) WiFi adaptor. 3) Internal 4G Cat3 Sierra Wireless modem for management. 4) SSD. 5) USB hub. 6) Internal 4G modem antennas. 7) ZTE MF910 LTE Cat4 MiFis. 8) WiFi antennas. 9) GPS antenna.}
+	\label{fig:firstNodeDesign}
+\end{figure}
+
+\subsubsection{Second design}
+
+The new \monroe{} design presents a heterogeneous set of nodes grouped in pairs:
+\begin{itemize*}
+	\item ``Head,'' with two Sierra Wireless LTE Cat6 modems.
+	\item ``Tail,'' with one Sierra Wireless LTE Cat6 modem and one WiFi adaptor.
+\end{itemize*}
+Figure~\ref{fig:secondNodeDesign} shows the current node design.
+Both types of nodes are based on a PC Engines APU2D4 motherboard with the following characteristics:
+\begin{itemize*}
+	\item \SI{1}{\giga\hertz} 64-bit quad core AMD Geode APU.
+	\item \SI{4}{\gibi\byte} RAM.
+	\item \SI{16}{\gibi\byte} SDD.
+	\item Three miniPCIe slots, two of which support a 3G/4G modem.
+\end{itemize*}
+
+\begin{figure}[tp]
+	\centering
+	\includegraphics[width=0.75\textwidth]{SystemPicture2.jpg}
+	\caption{Second system design. Left: Tail node with one LTE Cat6 modem and one WiFi adaptor. Right: Head node with two LTE Cat6 modems.}
+	\label{fig:secondNodeDesign}
+\end{figure}
+
+The new node design does not support a dedicated management MBB interface.
+Thus, additional measures have been taken to minimize the interference of background traffic with user experiments.
+In particular, most maintenance operations (except optionally the transfer of user results) are paused during experiment execution.
+Also, a fix hour is reserved for maintenance in all nodes every day.
+
+
 \subsection{Overview of the node configuration}
 
 \monroe{} nodes have been designed to have minimal impact on the experiments that run on them.
@@ -1042,7 +1096,7 @@ By default, that is, if the experiment does not take any special configuration a
 However, experimenters have the possibility of explicitly binding external tools or their programs to specific interfaces.
 Several options are available to bind an experiment to an interface.
 
-\begin{enumerate}
+\begin{enumerate*}
 	\item Most standard tools can be instructed to use an specific interface:
 	{	\VerbatimFont
 		\begin{verbatim}
@@ -1054,7 +1108,7 @@ Several options are available to bind an experiment to an interface.
 	}
 	
 	\item Explicit binding in the source code.
-	\begin{itemize}
+	\begin{itemize*}
 		\item In C:
 		{
 			\VerbatimFont
@@ -1073,7 +1127,7 @@ Several options are available to bind an experiment to an interface.
 			s.bind('192.168.1.152', 0))
 			\end{verbatim}
 		}
-	\end{itemize}
+	\end{itemize*}
 	
 	\item Library overloading the \identifier{bind()} and \identifier{connect()} functions through \identifier{LD\_PRELOAD}:
 	
@@ -1086,7 +1140,7 @@ Several options are available to bind an experiment to an interface.
 		route del default gw ...; route add ...
 		\end{verbatim}
 	}
-\end{enumerate}
+\end{enumerate*}
 
 
 %------------------------------------------------------------%
