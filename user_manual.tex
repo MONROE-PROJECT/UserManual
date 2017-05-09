@@ -514,8 +514,23 @@ The SSH session can extend until the container finishes or is stopped.
 Finally, a virtual machine containing a ``virtual \monroe{} node'' has been designed to ease development and debugging on a local PC.
 This virtual node replays metadata previously recorded from a real one.
 
-\subsection{Mandatory testing process}
+\subsection{Mandatory certification process}
 \label{subsec:testingProcess}
+\monroe{} experiments have to be certified before they can be executed by deployed nodes.
+A small number of nodes are available through the user interface so that experimenters can test their experiments before starting the certification process.
+
+The certification process consists of the following steps:
+\begin{enumerate}
+	\item The experimenter contacts their patron to inform them that a new version of their experiment is ready for certification.
+	
+	\item The experimenter has to provide a summary of the experiment, i.e., overall purpose, design and implementation (reasonable length around \num{0.5} to \num{1} A4~pages).
+	
+	\item The container should be submitted as source (i.e., build scripts for Docker, not tools source code) for easy inspection by the patron.
+	Additionally, this will allow the \monroe{} administrators to update the containers when a new version of \identifier{monroe/base} is available.
+	
+	\item The patron, or the maintenance team, will then build (or pull) the container, tag it as \identifier{partnername/\allowbreak experimentname}, and push it to the deployed docker repository.
+\end{enumerate}
+
 Every experiment submitted to the \monroe{} testbed \emph{must} first pass through a testing process to receive manual approval by a \monroe{} administrator.
 To submit your experiment for testing, you have to use the web interface specifying ``testing'' as the required node type.
 
@@ -524,6 +539,15 @@ To submit your experiment for testing, you have to use the web interface specify
 \monroe{}'s scheduling system will automatically deploy experiments to the nodes before their execution time.
 The nodes will fetch the container image from the Docker repository, and the size of the download will be accounted in your data quota.
 Notice that in the case of periodic experiments, each time an experiment is run, the Docker container may have to be re-downloaded and its costs will be accounted in your quota.
+
+\subsection{Life cycle of monroe/base}
+
+The current version of \identifier{monroe/base} deployed on nodes is tagged as ``latest.''
+New versions will be tagged as ``staging;'' their existence will be announced on the experimenters mail list.
+Experimenters must check their experiments against the new stagging version to verify that no incompatibilities appear.
+Any relevant issues can be discussed with the \monroe{} administrators.
+After a reasonable period of time, the new version will be retagged as ``latest,'' and deployed into the nodes.
+All the containers should have been built against the new version at this time to avoid wasting quota resources when they are deployed in the nodes.
 
 
 %------------------------------------------------------------%
