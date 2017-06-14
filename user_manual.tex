@@ -419,7 +419,7 @@ Preparing a new container from \monroe{}'s base image is an easy process:
 		During the development phase of your experiment, follow these steps to make your container accessible for the testing nodes:
 		\begin{itemize}
 			\item Create an account at Docker Hub.
-			\item Create a private repository (you can create one container as private; no limits for public ones).
+			\item Create your own repository (you can create one container as private; no limits for public ones). Containers for deployment on \monroe{} nodes must be public.
 			\item In your development machine, run: \identifier{docker login}. It will ask you for your credentials.
 		\end{itemize}
 	\item After populating the \identifier{files/} directory, modifying the .docker file and updating the \identifier{push.sh} file, you are ready to create the image:
