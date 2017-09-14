@@ -2964,8 +2964,13 @@ It was then set to \num{2} to signal the transition in timestamps that most tabl
    		                    & Maintenance.Stop: The interactive login session is closed.\\
    		                    & System.Halt: System halt is requested.\\
    		                    & Scheduling.Started: The node starts to query the scheduling server.\\
+   		                    & Scheduling.Task.Deploying: A scheduling task passed checks and is being deployed.\\
+   		                    & Scheduling.Task.Deployed: A scheduling task has been deployed.\\
+   		                    & Scheduling.Task.Started: A scheduling task has started.\\
+   		                    & Scheduling.Task.Stopped: A scheduling task has stopped and is being cleaned up.\\
 		Message             & Extra key for some event types.\\
 		User                & Extra key for some event types.\\
+		id                  & Extra key for Scheduling.Task.* events.\\
 		\bottomrule
 	\end{longtable}
 }
