@@ -1541,8 +1541,11 @@ Be smart.
 
 Local access, which allows password authentication, can be achieved through the serial port and the management interface.
 
-The APU's third ethernet port (eth2), nearest the USB ports, has the IP address 172.16.254.1/24.
-The node can be accessed setting a static IP address in the 172.16.254.0/24 network span (e.g., 172.16.254.2) on the developer side of the link and establishing an SSH connection.
+The APU's third ethernet port (eth2), nearest the USB ports, has a default IP
+address, 172.16.254.1/24 for the Head and 172.16.254.2/24 for the Tail. The
+nodes can be accessed by setting up a static IP address in the 172.16.254.0/24
+network span (e.g., 172.16.254.20) on the developer side of the link and
+establishing an SSH connection.
 
 The DB-9 serial port (console) allows direct terminal access.
 The boot process and grub menu are visible and interactive through this connection; some kernel messages will be printed as well while connected.
