@@ -876,14 +876,13 @@ The \monroe{} scheduler REST API is normally used through the provided WEB inter
 However, experimenters can use it directly to improve task automation.
 A complete command-line tool is available at \url{https://github.com/ana-cc/monroe-cli}.%
 \footnote{The command-line interface tool has been provided by Ana Custura, from the University of Aberdeen Court, in the context of the MONROE-PREC project.}
-The following paragraphs describe how to install and use the tool.
+The following paragraphs describe how to install and use the tool. Note that due to a certificate issue the tool will only run on Debian based systems.
 
 \subsubsection{Installation}
 
 Installation prerequisites:
 {\VerbatimFont\begin{verbatim}
-sudo apt-get install python3 python3-setuptools python3-cryptography
-sudo pip install straight.plugin
+sudo apt install git python3-dev python3-setuptools build-essential libffi-dev libssl-dev python3-straight.plugin python3-cryptography
 \end{verbatim}}
 
 \noindent From the directory that contains the tool sources:
@@ -893,11 +892,10 @@ python3 setup.py develop
 
 \noindent The user certificate can be imported with:
 {\VerbatimFont\begin{verbatim}
-$ monroe setup --cert MyCert.p12
+$ monroe setup MyCert.p12
 Enter passphrase:
 Your certificate files were stored in ~/.monroe
 \end{verbatim}}
-This feature depends on a recent version of OpenSSH.
 Alternatively, the cert/key files can be extracted manually and placed under \identifier{$\sim$/.monroe/}  with the names \identifier{mnrCrt.pem} and \identifier{mnrKey.pem}.
 
 \subsubsection{Usage}
@@ -941,6 +939,12 @@ $ monroe quota
 2017-05-05 : Remaining data quota is 46.00 GB.
 \end{verbatim}}
 
+\noindent Experiments can be easily submitted, and customized with various options:
+{\VerbatimFont\begin{verbatim}
+$ monroe create monroe/base --nodecount 5 --duration 600
+Allocated task 1289.
+\end{verbatim}}
+
 \noindent The tool allows retrieving the list of recent experiments:
 {\VerbatimFont\begin{verbatim}
 $ monroe experiments
@@ -951,7 +955,7 @@ Experiment ID: 6800 Name: mike test on new nodes Script: steven76/headless Summa
 
 \noindent The results of an experiment can also be automatically retrieved:
 {\VerbatimFont\begin{verbatim}
-$ monroe results --exp 6479
+$ monroe results 6479
 \end{verbatim}}
 \noindent This command downloads the experiment results into \identifier{6479/sched\_id}, for all the task IDs associated to that experiment.
 
