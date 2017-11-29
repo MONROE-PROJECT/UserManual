@@ -725,7 +725,7 @@ Here, the user will be presented with a page similar to Figure~\ref{fig:newExper
 To create a new experiment, at least the following parameters must be specified:
 \begin{description}
 	\item [Name:] A representative experiment description.
-	\item [Script:] A Docker hub path for the experiment container. In the previous example, it would be \identifier{your\_\allowbreak docker\_\allowbreak account/my\_\allowbreak experiment.} Experiments on deployed nodes must be lodged in \monroe{}'s repository: \identifier{monroe1.cs.kau.se:5000/my\_experiment}.
+	\item [Script:] A Docker hub path for the experiment container. In the previous example, it would be \identifier{your\_\allowbreak docker\_\allowbreak account/my\_\allowbreak experiment.} Experiments on deployed nodes must be lodged in \monroe{}'s repository: \identifier{docker.monroe-system.eu/...} (the final URL is communicated when the container is certified).
 	\item [Number of nodes:] The number of nodes that must execute the experiment.
 	\item [Duration:] Length of the experiment execution, in seconds (excluding the time required to deploy the container).
 	The node will kill the experiment after this time. The minimum slot that can be reserved is $\SI{5}{\minute}$ and the maximum, $\SI{24}{\hour}$. However, because of the scheduling of \monroe{} experiments, the maximum possible duration is in practice slightly less than three hours.
@@ -746,7 +746,7 @@ Additionally, the user may specify the following restrictions (Figure~\ref{fig:n
 	%The ``testing'' nodes are reserved for experiments that must still be sanctioned by a \monroe{} administrator.
 	Currently available node types are deployed or testing.
 	The testing nodes are reserved for experiments that must still be verified by a \monroe{} administrator.
-	Experiments on deployed nodes must be lodged in \monroe{}'s repository: \identifier{monroe1.cs.kau.se:5000/}.
+	Experiments on deployed nodes must be lodged in \monroe{}'s repository: \identifier{docker.monroe-system.eu/}.
 	\item [Node model:] Until complete retirement of the old \monroe{} nodes, experiments can run on old or new nodes. Eventually, all experiments will be run on new nodes.
 	\item [Number of interfaces:] New \monroe{} nodes come in pairs of co-located nodes, where one node (``head'') has two 4G interfaces, and the other (``tail'') has one 4G interface and one WiFi interface.
 	Specifying the number of required interfaces for the experiment restricts the type of nodes that can be selected by the scheduler:
