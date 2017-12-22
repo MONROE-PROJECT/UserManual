@@ -6,6 +6,8 @@
 \documentclass[a4paper,10pt]{article}
 
 \usepackage{monroe-deliverable}
+\usepackage{booktabs}% http://ctan.org/pkg/booktabs
+\newcommand{\tabitem}{~~\llap{\textbullet}~~}
 \usepackage{appendix}
 \usepackage{longtable}
 \usepackage{mdwlist}		% Defines itemize*, enumerate* y description*, which have less vertical spacing.
@@ -315,7 +317,7 @@ At run-time, the nodes retrieve the container image from the repository and star
 
 During execution, the experiment should not install additional applications or download any data that is not part of the experiment itself (e.g., if the experiment uploads a file to a server to test upstream speed, either include the file to be uploaded in the container at design time or create it locally).
 
-\emph{$\Rightarrow$~Experiments will under no circumstances allow direct ssh access to the node or any other form of running interactive commands from outside the container that can pose a security risk for the platform.~$\Leftarrow$}
+\emph{$\Rightarrow$~Experiments will under no circumstances allow direct ssh access to the node or any other form of running interactive commands from outside the container that can pose a security risk for the platform.~$\Leftarrow$}\newline
 
 \subsection{Container preparation}
 \label{subsec:containerPreparation}
@@ -420,7 +422,7 @@ Preparing a new container from \monroe{}'s base image is an easy process:
 		\begin{itemize}
 			\item Create an account at Docker Hub.
 			\item Create your own repository (you can create one container as private; no limits for public ones). Containers for deployment on \monroe{} nodes must be public.
-			\item In your development machine, run: \identifier{docker login}. It will ask you for your credentials.
+			\item In your development machine, run: \identifier{docker login}. It will ask you for your credentials.  \tabitem
 		\end{itemize}
 	\item After populating the \identifier{files/} directory, modifying the .docker file and updating the \identifier{push.sh} file, you are ready to create the image:
 		{\VerbatimFont\begin{verbatim}
@@ -567,6 +569,10 @@ The SSH session can extend until the container finishes or is stopped.
 
 Finally, a virtual machine containing a ``virtual \monroe{} node'' has been designed to ease development and debugging on a local PC.
 This virtual node replays metadata previously recorded from a real one.
+
+
+\textcolor{red}{CAUTION:} Enabling ssh changes the entry point to the container, for this matter it is best not to use ssh when you have designed your container just to make sure that the container starts automatically in the UI.
+
 
 \subsection{Mandatory certification process}
 \label{subsec:testingProcess}
@@ -865,7 +871,25 @@ Some experiments may be designed to finish after completion.
 For those ones, the correct finishing state is ``Finished.''
 If they are stopped by the scheduler, they probably exceeded the execution time foreseen by the experimenter.
 However, other experiments may be designed to run continuously for a period of time.
-In those cases, the ``Stopped'' state could actually be the correct ending state as intended by the experimenter.
+\begin{table}[tp]
+
+	\caption{Experiment problems}
+	\label{tab:experimentProblems}
+		\begin{center}
+
+		\begin{tabular*}{1\textwidth}{p{0.15\textwidth}p{0.8\textwidth}}
+						\toprule
+			\textbf{STATE} & \textbf{DESCRIPTION} \\ \midrule
+			{\textcolor{blue}{Deployed}} & \begin{tabular}[c]{@{}l@{}} \tabitem Container does not exist, or i/o timeout. \\ \tabitem Insufficient disk space.\\ \tabitem Cannot deploy while node is in maintenance mode.\\ \tabitem Container downloading in background.\end{tabular} \\ \hline
+			\midrule
+			{\textcolor{red}{Failed}} & \begin{tabular}[c]{@{}l@{}}\tabitem Storage quota exceeded during deployment.\\ \tabitem Container exited immediately.\\ \tabitem Network namespace does not exist.\\ \tabitem Container image not found. \\ \tabitem  Started into maintenance mode. \\ \tabitem  Docker run command failed. \\ \tabitem  Docker run exit code 127: entry point not found? \\ \tabitem Deployment time exceeded stop time, skipped start hook. \\ \tabitem Deployment time exceeded stop time.
+			\end{tabular} \\ \hline
+		\end{tabular*}
+		\end{center}
+\end{table}
+cases, the ``Stopped'' state could actually be the correct ending state as intended by the experimenter.
+Moreover delayed, and failed states can have different meanings From insufficient disk space to the docker container not being found as explained in Table~\ref{tab:experimentProblems}.
+
 
 %------------------------------------------------------------%
 \FloatBarrier{}
