@@ -819,6 +819,39 @@ Figure~\ref{fig:newExperimentCheckAvailability} shows the answer of the schedule
 	\label{fig:newExperimentCheckAvailability}
 \end{figure}
 
+\subsubsection{First availability scheduling}
+
+\begin{figure}[tp]
+	\centering
+	\includegraphics[width=0.75\textwidth]{FirstAvailability1.png}
+	\caption{Example of a first availability scheduling.}
+	\label{fig:firstAvailability1}
+\end{figure}
+
+\begin{figure}[tp]
+	\centering
+	\includegraphics[width=0.9\textwidth]{FirstAvailability2.png}
+	\caption{Status of an experiment in the fist availability queue without defined starting and stopped times.}
+	\label{fig:firstAvailability2}
+\end{figure}
+
+The \monroe{} scheduler allows users to define experiments with an execution window instead of a fixed  starting time.
+This option is particularly useful with mobile nodes whose active times are difficult to foresee.
+With first availability scheduling, the user specifies requirements as usual, except the starting date; instead, a temporal window within which the experiment can be scheduled is defined.
+The scheduler will assign a node or set of nodes to the experiment, without committing a specific time slot.
+When the node contacts the scheduler (e.g., when a mobile bus becomes online), if it has no pending tasks, the scheduler will assign one of the tasks in the first-availability queue.
+Figure~\ref{fig:firstAvailability1} shows the definition of an experiment for first availability scheduling.
+In the time between the experiment definition and the assignment of an execution window to each of its tasks, the status of the experiment tasks shows no start and stop times, as shown in Figure~\ref{fig:firstAvailability2}.
+The start and stop times of the experiment show the boundaries of the execution window for all the tasks.
+
+First availability scheduling presents some particularities that users should consider:
+\begin{itemize}
+	\item If several nodes are requested, execution on each node is asynchronous and thus \emph{not} guaranteed to be simultaneous.
+	\item Experiments may not be executed if the end of the scheduling window is reached without a chance to execute them.
+	\item Tasks in the first-availability queue are not deployed on advance to the nodes. The user should take this into consideration, increasing the ``duration'' of the experiment to include long deployment times.
+	\item The scheduler checks if the first-availability request has a chance to be fulfilled at all, under the current circumstances.
+	\item By default, the execution window ends \SI{24}{\hour} after the current time.
+\end{itemize}
 
 \subsection{Experiment monitoring}
 \label{subsec:experimentMonitoring}
