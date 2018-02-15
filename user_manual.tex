@@ -6,6 +6,8 @@
 \documentclass[a4paper,10pt]{article}
 
 \usepackage{monroe-deliverable}
+\usepackage{booktabs}% http://ctan.org/pkg/booktabs
+\newcommand{\tabitem}{~~\llap{\textbullet}~~}
 \usepackage{appendix}
 \usepackage{longtable}
 \usepackage{mdwlist}		% Defines itemize*, enumerate* y description*, which have less vertical spacing.
@@ -315,7 +317,7 @@ At run-time, the nodes retrieve the container image from the repository and star
 
 During execution, the experiment should not install additional applications or download any data that is not part of the experiment itself (e.g., if the experiment uploads a file to a server to test upstream speed, either include the file to be uploaded in the container at design time or create it locally).
 
-\emph{$\Rightarrow$~Experiments will under no circumstances allow direct ssh access to the node or any other form of running interactive commands from outside the container that can pose a security risk for the platform.~$\Leftarrow$}
+\emph{$\Rightarrow$~Experiments will under no circumstances allow direct ssh access to the node or any other form of running interactive commands from outside the container that can pose a security risk for the platform.~$\Leftarrow$}\newline
 
 \subsection{Container preparation}
 \label{subsec:containerPreparation}
@@ -420,7 +422,7 @@ Preparing a new container from \monroe{}'s base image is an easy process:
 		\begin{itemize}
 			\item Create an account at Docker Hub.
 			\item Create your own repository (you can create one container as private; no limits for public ones). Containers for deployment on \monroe{} nodes must be public.
-			\item In your development machine, run: \identifier{docker login}. It will ask you for your credentials.
+			\item In your development machine, run: \identifier{docker login}. It will ask you for your credentials.  \tabitem
 		\end{itemize}
 	\item After populating the \identifier{files/} directory, modifying the .docker file and updating the \identifier{push.sh} file, you are ready to create the image:
 		{\VerbatimFont\begin{verbatim}
@@ -554,7 +556,56 @@ For example, assuming that you have a basic container that simply waits when run
 	--> You'll find the output at /run/shm/myresults/package-listing.txt
 \end{verbatim}}
 For easier reference, Table~\ref{tab:installedPackages} in Appendix~\ref{app:installedPackages} gives a detailed listing of packages available in \identifier{monroe/base} at the time of writing this text.
+\subsubsection{Band Locking}
+This option allows experimenters to lock the monroe node modems in LTE, 3G etc...   
+by sending a PUT request from within a \textbf{container} using different lock types see Table~\ref{tab:lock} using curl similar to:
+{\VerbatimFont\begin{verbatim}
+	curl -X POST -d '{"lockType": 16}' http://172.17.0.1:80/modems/1/lock
+	HTTP/1.0 200 OK
+	\end{verbatim}}
+Where "lockType": 16 indicates that it has been locked on 4G LTE and modems/\#/lock indicates the modems ip4table to check ip4table first, or that the modem is locked run:
+{\VerbatimFont\begin{verbatim}
+	curl -s  http://172.17.0.1:80/modems/ | jq
+	[
+	{  
+	"ispName": "YOIGO",
+	"apnId": 77,
+	"apn": "internet",
+	"mode": "LTE",
+	"deviceType": 0,
+	"disconnects": 0,
+	"ip4table": 1,
+	"modemState": 7,
+	"deviceKind": 1,
+	"ifname": "wwan0",
+	"deviceMode": 5,
+	"deviceSubMode": 10,
+	"signalStrength": -56,
+	"modemName": "MC7455",
+	"locking": 16,
+	"imei": "359072060710833",
+	"iccid": "8934041514050773954",
+	"usb_vid": 4505
+	}
+	] 
+	\end{verbatim}}
 
+\begin{table}[]
+	\centering
+	\begin{tabular}{l|l}
+		\hline
+		
+		\textbf{LockType} & \textbf{DESCRIPTION} \\ \hline
+	
+		4 & Lock in MODE\_GSM \\ \hline
+		8 & Lock in MODE\_UMTS \\ \hline
+		16 & Lock in MODE\_LTE \\ \hline
+		
+		
+	\end{tabular}
+	\caption{LockTypes}
+	\label{tab:lock}
+\end{table}
 \subsection{Optional interactive debugging}
 To speed up the process of debugging experiments in the nodes, three debugging paths are provided.
 
@@ -567,6 +618,10 @@ The SSH session can extend until the container finishes or is stopped.
 
 Finally, a virtual machine containing a ``virtual \monroe{} node'' has been designed to ease development and debugging on a local PC.
 This virtual node replays metadata previously recorded from a real one.
+
+
+\textcolor{red}{CAUTION:} Enabling ssh changes the entry point to the container, for this matter it is best not to use ssh when you have designed your container just to make sure that the container starts automatically in the UI.
+
 
 \subsection{Mandatory certification process}
 \label{subsec:testingProcess}
@@ -674,6 +729,8 @@ You may find it in the screen after pressing the ``Try me'' button, once the cer
 	\item Firefox on OSX has an issue with CORS headers. Although the web and scheduling servers are running now on the same machine, you may still encounter this problem.
 \end{itemize}
 
+~\\$\Rightarrow$~\textcolor{red}{Reminder:} All user certificates will end on the 31st of July 2018.
+
 \subsubsection{Installation of user certificates in Chrome}
 \label{subsec:userCertsInstallWinChrome}
 
@@ -774,7 +831,58 @@ Additionally, the user may specify the following restrictions (Figure~\ref{fig:n
 	\includegraphics[width=1.0\textwidth]{NewExperimentFilters.png}
 	\caption{Filters for node selection.}
 	\label{fig:newExperimentFilters}
+	
 \end{figure}
+
+\begin{figure}[tp]
+	\centering
+	\includegraphics[width=1.0\textwidth]{eduroam.png}
+	\caption{Eduroam configuration.}
+	\label{fig:edu}
+\end{figure}
+
+
+\subsubsection{Eduroam}
+\label{subsec:eduoroam}
+In the additional option tab experimenters can use eduroam, which is a roaming service for researchers or students in universities across Europe, to use eduoroam see Figure~\ref{fig:edu} the key values are similar to:
+{\VerbatimFont\begin{verbatim}
+	"_eduroam": { "identity": "100368007@****",  "hash": "passw4d" }
+	\end{verbatim}
+When the experiments starts the docker container will initialize wpa\_supplicant to bring up the Wlan0 interface up, as it will be available in the network namespace alongside op0, op1. The start log and the container network namespace will be similar to:
+{\VerbatimFont\begin{verbatim}
+$Start Log$
+Starting container... Successfully initialized wpa_supplicant
+Killed old client process
+Loading iptables rules
+ok.
+Starting accounting.
+Loading iptables rules
+Started docker process xx.
+Startup finished Tue Month  x xx:xx:xx UTC 20xx.
+Started allocator client
+JSON request: {"address":"xxx.xxx.xx.xx","ifname":"wlan0","addr_family":x,"cmd":0,"version":1}
+Sent 80 bytes
+Server: tas_socket Table: xxxxx Lease: xxxxxx Ifname: wlan0 Address: xxx.xxx.xx.xx Family: x 
+Table: xxxxx
+
+
+root@xxxxxxx:/# ifconfig
+eth0: flags=xx<UP,BROADCAST,RUNNING,MULTICAST> mtu 1500
+ inet xxx.xx.x.x netmask xxx.xxx.xxx.x broadcast x.x.x.x 
+ 
+lo: flags=xx<UP,LOOPBACK,RUNNING> mtu 65536 
+ inet 127.0.0.1 netmask 255.0.0.0 
+
+op0: flags=xx<UP,BROADCAST,RUNNING,MULTICAST> mtu 1500 
+ inet xxx.xx.x.x netmask xxx.xxx.xxx.xxx broadcast x.x.x.x 
+ 
+wlan0: flags=4xxx<UP,BROADCAST,MULTICAST>  mtu 1500
+ inet xxx.xx.xx.xx  netmask xxx.xxx.xxx.xxx  broadcast x.x.x.x
+
+	\end{verbatim}
+Noting that the eduroam parameters are hidden parameters, but not encrypted and they are still stored in the scheduler database.	
+	
+
 
 \subsection{Experiment scheduling}
 \label{subsec:experimentScheduling}
@@ -813,6 +921,39 @@ Figure~\ref{fig:newExperimentCheckAvailability} shows the answer of the schedule
 	\label{fig:newExperimentCheckAvailability}
 \end{figure}
 
+\subsubsection{First availability scheduling}
+
+\begin{figure}[tp]
+	\centering
+	\includegraphics[width=0.75\textwidth]{FirstAvailability1.png}
+	\caption{Example of a first availability scheduling.}
+	\label{fig:firstAvailability1}
+\end{figure}
+
+\begin{figure}[tp]
+	\centering
+	\includegraphics[width=0.9\textwidth]{FirstAvailability2.png}
+	\caption{Status of an experiment in the fist availability queue without defined starting and stopped times.}
+	\label{fig:firstAvailability2}
+\end{figure}
+
+The \monroe{} scheduler allows users to define experiments with an execution window instead of a fixed  starting time.
+This option is particularly useful with mobile nodes whose active times are difficult to foresee.
+With first availability scheduling, the user specifies requirements as usual, except the starting date; instead, a temporal window within which the experiment can be scheduled is defined.
+The scheduler will assign a node or set of nodes to the experiment, without committing a specific time slot.
+When the node contacts the scheduler (e.g., when a mobile bus becomes online), if it has no pending tasks, the scheduler will assign one of the tasks in the first-availability queue.
+Figure~\ref{fig:firstAvailability1} shows the definition of an experiment for first availability scheduling.
+In the time between the experiment definition and the assignment of an execution window to each of its tasks, the status of the experiment tasks shows no start and stop times, as shown in Figure~\ref{fig:firstAvailability2}.
+The start and stop times of the experiment show the boundaries of the execution window for all the tasks.
+
+First availability scheduling presents some particularities that users should consider:
+\begin{itemize}
+	\item If several nodes are requested, execution on each node is asynchronous and thus \emph{not} guaranteed to be simultaneous.
+	\item Experiments may not be executed if the end of the scheduling window is reached without a chance to execute them.
+	\item Tasks in the first-availability queue are not deployed on advance to the nodes. The user should take this into consideration, increasing the ``duration'' of the experiment to include long deployment times.
+	\item The scheduler checks if the first-availability request has a chance to be fulfilled at all, under the current circumstances.
+	\item By default, the execution window ends \SI{24}{\hour} after the current time.
+\end{itemize}
 
 \subsection{Experiment monitoring}
 \label{subsec:experimentMonitoring}
@@ -865,7 +1006,25 @@ Some experiments may be designed to finish after completion.
 For those ones, the correct finishing state is ``Finished.''
 If they are stopped by the scheduler, they probably exceeded the execution time foreseen by the experimenter.
 However, other experiments may be designed to run continuously for a period of time.
+\begin{table}[tp]
+
+	\caption{Experiment problems}
+	\label{tab:experimentProblems}
+		\begin{center}
+
+		\begin{tabular*}{1\textwidth}{p{0.15\textwidth}p{0.8\textwidth}}
+						\toprule
+			\textbf{STATE} & \textbf{DESCRIPTION} \\ \midrule
+			{\textcolor{blue}{Deployed}} & \begin{tabular}[c]{@{}l@{}} \tabitem Container does not exist, or i/o timeout. \\ \tabitem Insufficient disk space.\\ \tabitem Cannot deploy while node is in maintenance mode.\\ \tabitem Container downloading in background.\end{tabular} \\ \hline
+			\midrule
+			{\textcolor{red}{Failed}} & \begin{tabular}[c]{@{}l@{}}\tabitem Storage quota exceeded during deployment.\\ \tabitem Container exited immediately.\\ \tabitem Network namespace does not exist.\\ \tabitem Container image not found. \\ \tabitem  Started into maintenance mode. \\ \tabitem  Docker run command failed. \\ \tabitem  Docker run exit code 127: entry point not found? \\ \tabitem Deployment time exceeded stop time, skipped start hook. \\ \tabitem Deployment time exceeded stop time.
+			\end{tabular} \\ \hline
+		\end{tabular*}
+		\end{center}
+\end{table}
 In those cases, the ``Stopped'' state could actually be the correct ending state as intended by the experimenter.
+Moreover delayed, and failed states can have different meanings From insufficient disk space to the docker container not being found as explained in Table~\ref{tab:experimentProblems}.
+
 
 %------------------------------------------------------------%
 \FloatBarrier{}
