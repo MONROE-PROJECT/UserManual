@@ -846,7 +846,7 @@ Additionally, the user may specify the following restrictions (Figure~\ref{fig:n
 \label{subsec:eduoroam}
 In the additional option tab experimenters can use eduroam, which is a roaming service for researchers or students in universities across Europe, to use eduoroam see Figure~\ref{fig:edu} the key values are similar to:
 {\VerbatimFont\begin{verbatim}
-	"_eduroam": { "identity": "100368007@****",  "hash": "passw4d" }
+	"_eduroam": { "identity": "100368007@****",  "hash": "YourpasswdHash" }
 	\end{verbatim}
 When the experiments starts the docker container will initialize wpa\_supplicant to bring up the Wlan0 interface up, as it will be available in the network namespace alongside op0, op1. The start log and the container network namespace will be similar to:
 {\VerbatimFont\begin{verbatim}
