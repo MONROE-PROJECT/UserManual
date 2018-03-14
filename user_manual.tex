@@ -556,7 +556,56 @@ For example, assuming that you have a basic container that simply waits when run
 	--> You'll find the output at /run/shm/myresults/package-listing.txt
 \end{verbatim}}
 For easier reference, Table~\ref{tab:installedPackages} in Appendix~\ref{app:installedPackages} gives a detailed listing of packages available in \identifier{monroe/base} at the time of writing this text.
+\subsubsection{Band Locking}
+This option allows experimenters to lock the monroe node modems in LTE, 3G etc...   
+by sending a PUT request from within a \textbf{container} using different lock types see Table~\ref{tab:lock} using curl similar to:
+{\VerbatimFont\begin{verbatim}
+	curl -X POST -d '{"lockType": 16}' http://172.17.0.1:80/modems/1/lock
+	HTTP/1.0 200 OK
+	\end{verbatim}}
+Where "lockType": 16 indicates that it has been locked on 4G LTE and modems/\#/lock indicates the modems ip4table to check ip4table first, or that the modem is locked run:
+{\VerbatimFont\begin{verbatim}
+	curl -s  http://172.17.0.1:80/modems/ | jq
+	[
+	{  
+	"ispName": "YOIGO",
+	"apnId": 77,
+	"apn": "internet",
+	"mode": "LTE",
+	"deviceType": 0,
+	"disconnects": 0,
+	"ip4table": 1,
+	"modemState": 7,
+	"deviceKind": 1,
+	"ifname": "wwan0",
+	"deviceMode": 5,
+	"deviceSubMode": 10,
+	"signalStrength": -56,
+	"modemName": "MC7455",
+	"locking": 16,
+	"imei": "359072060710833",
+	"iccid": "8934041514050773954",
+	"usb_vid": 4505
+	}
+	] 
+	\end{verbatim}}
 
+\begin{table}[]
+	\centering
+	\begin{tabular}{l|l}
+		\hline
+		
+		\textbf{LockType} & \textbf{DESCRIPTION} \\ \hline
+	
+		4 & Lock in MODE\_GSM \\ \hline
+		8 & Lock in MODE\_UMTS \\ \hline
+		16 & Lock in MODE\_LTE \\ \hline
+		
+		
+	\end{tabular}
+	\caption{LockTypes}
+	\label{tab:lock}
+\end{table}
 \subsection{Optional interactive debugging}
 To speed up the process of debugging experiments in the nodes, three debugging paths are provided.
 
@@ -648,7 +697,7 @@ In the case of any problems, the user will be presented with instructions on how
 If the client certificate is verified successfully, they will be automatically redirected to the listing of their experiments.
 
 \textbf{NOTE:} User certificates are manually activated in the scheduling software.
-To use your certificate, please send its SSL ID (``fingerprint'') to one of the \monroe{} administrators (e.g., \url{mailto:mikepeon@imdea.org}).
+To use your certificate, please send its SSL ID (``fingerprint'') to one of the \monroe{} administrators (e.g., \url{mailto:mikepeon@imdea.org}, \url{mailto:mohamed.moulay@imdea.org}).
 You may find it in the screen after pressing the ``Try me'' button, once the certificate is correctly installed in your browser:
 {\VerbatimFont\begin{verbatim}
 {
@@ -679,6 +728,8 @@ You may find it in the screen after pressing the ``Try me'' button, once the cer
 	\item For the first login, you may be asked for your user certificate and then your browser may show a security warning. This is due to the use of a self-signed server certificate. Please ask your browser to proceed. Then, you will probably see an error page from \monroe{}. Please, click the red button labeled ``Try me'' and check that you get a successful data output. Finally, please proceed again to the main page of the project. From that point, you should be able to access the system without further problems in future sessions. (Pointers on how to simplify this issue are welcome!)
 	\item Firefox on OSX has an issue with CORS headers. Although the web and scheduling servers are running now on the same machine, you may still encounter this problem.
 \end{itemize}
+
+~\\$\Rightarrow$~\textcolor{red}{Reminder:} All user certificates will end on the 31st of July 2018.
 
 \subsubsection{Installation of user certificates in Chrome}
 \label{subsec:userCertsInstallWinChrome}
@@ -780,7 +831,58 @@ Additionally, the user may specify the following restrictions (Figure~\ref{fig:n
 	\includegraphics[width=1.0\textwidth]{NewExperimentFilters.png}
 	\caption{Filters for node selection.}
 	\label{fig:newExperimentFilters}
+	
 \end{figure}
+
+\begin{figure}[tp]
+	\centering
+	\includegraphics[width=1.0\textwidth]{eduroam.png}
+	\caption{Eduroam configuration.}
+	\label{fig:edu}
+\end{figure}
+
+
+\subsubsection{Eduroam}
+\label{subsec:eduoroam}
+In the additional option tab experimenters can use eduroam, which is a roaming service for researchers or students in universities across Europe, to use eduoroam see Figure~\ref{fig:edu} the key values are similar to:
+{\VerbatimFont\begin{verbatim}
+	"_eduroam": { "identity": "100368007@****",  "hash": "YourpasswdHash" }
+	\end{verbatim}
+When the experiments starts the docker container will initialize wpa\_supplicant to bring up the Wlan0 interface up, as it will be available in the network namespace alongside op0, op1. The start log and the container network namespace will be similar to:
+{\VerbatimFont\begin{verbatim}
+$Start Log$
+Starting container... Successfully initialized wpa_supplicant
+Killed old client process
+Loading iptables rules
+ok.
+Starting accounting.
+Loading iptables rules
+Started docker process xx.
+Startup finished Tue Month  x xx:xx:xx UTC 20xx.
+Started allocator client
+JSON request: {"address":"xxx.xxx.xx.xx","ifname":"wlan0","addr_family":x,"cmd":0,"version":1}
+Sent 80 bytes
+Server: tas_socket Table: xxxxx Lease: xxxxxx Ifname: wlan0 Address: xxx.xxx.xx.xx Family: x 
+Table: xxxxx
+
+
+root@xxxxxxx:/# ifconfig
+eth0: flags=xx<UP,BROADCAST,RUNNING,MULTICAST> mtu 1500
+ inet xxx.xx.x.x netmask xxx.xxx.xxx.x broadcast x.x.x.x 
+ 
+lo: flags=xx<UP,LOOPBACK,RUNNING> mtu 65536 
+ inet 127.0.0.1 netmask 255.0.0.0 
+
+op0: flags=xx<UP,BROADCAST,RUNNING,MULTICAST> mtu 1500 
+ inet xxx.xx.x.x netmask xxx.xxx.xxx.xxx broadcast x.x.x.x 
+ 
+wlan0: flags=4xxx<UP,BROADCAST,MULTICAST>  mtu 1500
+ inet xxx.xx.xx.xx  netmask xxx.xxx.xxx.xxx  broadcast x.x.x.x
+
+	\end{verbatim}
+Noting that the eduroam parameters are hidden parameters, but not encrypted and they are still stored in the scheduler database.	
+	
+
 
 \subsection{Experiment scheduling}
 \label{subsec:experimentScheduling}
