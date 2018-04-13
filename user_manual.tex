@@ -2504,7 +2504,17 @@ The web user interface provides further instructions (SSH command line) to conne
 
 This is the container upon which all user experiments \emph{must} be built.
 The container is based on Debian ``jessie'' with (\monroe{}) common experiment tools added.
-For a list of the tools currently installed see the folder \identifier{monroe\_base.docker} in our repositories.
+For a list of the tools currently installed see the folder \identifier{monroe\_base.docker} in our repositories. This base image has been extended to support layer depending on the kind of experiments the experimenter wants to run. The new monroe\_base tags are as follow:
+\begin{itemize}
+ \item \textbf{monroe/base} This is for all experiments except the one defined below.
+ \item \textbf{monroe/base:web} This tag was specifically designed for experiments that use headless browsing such as Chrome or Firefox.
+ \item \textbf{monroe/base:virt} This tag is needed for experiments that need to run in a virtual machine.
+\end{itemize}
+Some of the packages moved from monroe\_base to monroe\_base:web such as:
+\begin{itemize*}
+	\item moved Firefox and support packages (xvfb, xauth, libgtk-3-0, libasound2, dbus, libdbus-glib-1-2, libgtk2.0-0, libgtk2.0-common, pyvirtualdisplay, selenium, python-dateutil, geckodriver)
+	\item Added support for Firefox (56.0.1) and support packages Google chrome(64.*)
+\end{itemize*}
 
 
 %------------------------------------------------------------%
@@ -2920,6 +2930,8 @@ sed	&	4.2.2-4+b1	&	amd64	&	The GNU sed stream editor	\\
 sensible-utils	&	0.0.9	&	all	&	Utilities for sensible alternative selection	\\
 shared-mime-info	&	1.3-1	&	amd64	&	FreeDesktop.org shared MIME database and spec	\\
 smokeping	&	2.6.9-1+deb8u1	&	all	&	latency logging and graphing system	\\
+speedtest-cli	&	1.0.0	&	all	&	
+Command line interface for testing internet bandwidth using speedtest.net	\\
 startpar	&	0.59-3	&	amd64	&	run processes in parallel and multiplex their output	\\
 supervisor	&	3.0r1-1	&	all	&	A system for controlling process state	\\
 systemd	&	215-17+deb8u5	&	amd64	&	system and service manager	\\
@@ -2942,6 +2954,8 @@ xauth	&	1:1.0.9-1	&	amd64	&	X authentication utility	\\
 xkb-data	&	2.12-1	&	all	&	X Keyboard Extension (XKB) configuration data	\\
 xserver-common	&	2:1.16.4-1	&	all	&	common files used by various X servers	\\
 xvfb	&	2:1.16.4-1	&	amd64	&	Virtual Framebuffer 'fake' X server	\\
+xz-utils	&	5.1.1alpha+20120614-2+b3		&	amd64	&	XZ-format compression utilities
+	\\
 zlib1g:amd64	&	1:1.2.8.dfsg-2+b1	&	amd64	&	compression library - runtime	\\
 	\bottomrule
 \end{longtable}
