@@ -178,31 +178,13 @@ Finally, it shows how the experiment results can be retrieved either directly fr
 \subsection{\monroe{} nodes hardware}
 
 The \monroe{} platform has gone through a complete process of analysis and redesign to adapt to the new hardware available in the market and overcome some of the issues encountered in the first design.
-The following paragraphs explain the main characteristics of each design.
+The following paragraphs explain the main characteristics of the current design.
 
-\subsubsection{First design}
-Originally, the \monroe{} platform presented a set of homogeneous nodes, each of them with three MiFis.
-The nodes were based on a PC Engines APU1D4 board with the following characteristics:
-\begin{itemize*}
-	\item \SI{1}{\giga\hertz} 64-bit dual core AMD Geode APU.
-	\item \SI{4}{\gibi\byte} RAM.
-	\item \SI{16}{\gibi\byte} SDD.
-	\item Three miniPCIe slots, one of which supports a 3G/4G modem.
-\end{itemize*}
 
-Each node had also one WiFi adaptor, an external USB hub with per-port-power-switching (PPPS) and three ZTE MF910 LTE CAT4 MiFis.
-Figure~\ref{fig:firstNodeDesign} shows the first design of the nodes.
 
-\begin{figure}[tp]
-	\centering
-	\includegraphics[width=0.75\textwidth]{SystemPicture1.png}
-	\caption{First system design. 1) PC Engines APU board. 2) WiFi adaptor. 3) Internal 4G Cat3 Sierra Wireless modem for management. 4) SSD. 5) USB hub. 6) Internal 4G modem antennas. 7) ZTE MF910 LTE Cat4 MiFis. 8) WiFi antennas. 9) GPS antenna.}
-	\label{fig:firstNodeDesign}
-\end{figure}
+\subsubsection{System design}
 
-\subsubsection{Second design}
-
-The new \monroe{} design presents a heterogeneous set of nodes grouped in pairs:
+The current \monroe{} design presents a heterogeneous set of nodes grouped in pairs:
 \begin{itemize*}
 	\item ``Head,'' with two Sierra Wireless LTE Cat6 modems.
 	\item ``Tail,'' with one Sierra Wireless LTE Cat6 modem and one WiFi adaptor.
@@ -219,11 +201,11 @@ Both types of nodes are based on a PC Engines APU2D4 motherboard with the follow
 \begin{figure}[tp]
 	\centering
 	\includegraphics[width=0.75\textwidth]{SystemPicture2.jpg}
-	\caption{Second system design. Left: Tail node with one LTE Cat6 modem and one WiFi adaptor. Right: Head node with two LTE Cat6 modems.}
+	\caption{System design. Left: Tail node with one LTE Cat6 modem and one WiFi adaptor. Right: Head node with two LTE Cat6 modems.}
 	\label{fig:secondNodeDesign}
 \end{figure}
 
-The new node design does not support a dedicated management MBB interface.
+The current node design does not support a dedicated management MBB interface.
 Thus, additional measures have been taken to minimize the interference of background traffic with user experiments.
 In particular, most maintenance operations (except optionally the transfer of user results) are paused during experiment execution.
 Also, a fix hour is reserved for maintenance in all nodes every day.
@@ -711,9 +693,9 @@ You may find it in the screen after pressing the ``Try me'' button, once the cer
     "role": "admin",
 \end{verbatim}
 \color{red}
-\vspace{-0.7cm}
+\vspace{-0.5cm}
 \begin{verbatim}
-    "ssl_id": "c79f1967aea17811a1ebed39b7d718430904338a"
+    "ssl_id":"c79f1967aea17811a1ebed39b7d718430904338a",
 \end{verbatim}
 \color{black}
 \vspace{-0.7cm}
@@ -728,7 +710,7 @@ You may find it in the screen after pressing the ``Try me'' button, once the cer
 	\item For the first login, you may be asked for your user certificate and then your browser may show a security warning. This is due to the use of a self-signed server certificate. Please ask your browser to proceed. Then, you will probably see an error page from \monroe{}. Please, click the red button labeled ``Try me'' and check that you get a successful data output. Finally, please proceed again to the main page of the project. From that point, you should be able to access the system without further problems in future sessions. (Pointers on how to simplify this issue are welcome!)
 	\item Firefox on OSX has an issue with CORS headers. Although the web and scheduling servers are running now on the same machine, you may still encounter this problem.
 \end{itemize}
-
+\vspace{-0.4cm}
 ~\\$\Rightarrow$~\textcolor{red}{Reminder:} All user certificates will end on the 31st of July 2018.
 
 \subsubsection{Installation of user certificates in Chrome}
