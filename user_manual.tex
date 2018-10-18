@@ -45,12 +45,12 @@
 \setpublicdeliverable
 
 %%% if this command is not used, then the default is: R (Report)
-%%% 
+%%%
 %%% 1st parameter is the deliverable type code, 2nd is the desired name for this type;
 %%% codes are as defined in table 3.1c of the proposal template:
 %%%
-%%%   r     = R: Document, report (excluding the periodic and final reports) 
-%%%   dem   = DEM: Demonstrator, pilot, prototype, plan designs 
+%%%   r     = R: Document, report (excluding the periodic and final reports)
+%%%   dem   = DEM: Demonstrator, pilot, prototype, plan designs
 %%%   dec   = DEC: Websites, patents filing, press & media actions, videos, etc.
 %%%   other = OTHER: Software, technical diagram, etc.
 \setdeliverabletype{r}{Report}
@@ -86,7 +86,7 @@
 %%% other (readable) colors: orange, blue, teal, violet, purple, brown, olive, magenta, cyan
 \newcommand{\OA}[1]{\textcolor{red}{{\sf OA: #1}}}
 \newcommand{\MPQ}[1]{\textcolor{blue}{{\sf MPQ: #1}}}
-\newcommand{\todo}[1]{\textcolor{red}{TODO: #1}\PackageWarning{TODO:}{#1!}}  
+\newcommand{\todo}[1]{\textcolor{red}{TODO: #1}\PackageWarning{TODO:}{#1!}}
 \newcommand{\monroe}{MONROE}
 % Style for identifiers such as "main()" or file names:
 \newcommand{\identifier}[1]{{\texttt{\small{#1}}}}
@@ -361,7 +361,7 @@ Preparing a new container from \monroe{}'s base image is an easy process:
 		In periodic schedules, no data will survive from one execution to the next (i.e., the container is loaded fresh before each execution).
 		If result persistence is needed, the experimenter will have to supply it by downloading the needed files from the network during the experiment itself.
 	\item You should not need to modify the \identifier{build.sh} file. The name of the container is the name of the current directory, and it must match the name of the \identifier{.docker} file (e.g., \identifier{template.docker} as we are in a folder named \identifier{template/}).
-	
+
 	\item The file \identifier{template.docker} is the script used to build your container.
 		You can modify it to:
 		\begin{itemize}
@@ -372,17 +372,17 @@ Preparing a new container from \monroe{}'s base image is an easy process:
 		For example:
 		{\VerbatimFont\begin{verbatim}
 			FROM monroe/base
-		
+
 			MAINTAINER your-email-address
-		
+
 			COPY files/* /opt/monroe/
-		
+
 			#Default cmd to run.
 			ENTRYPOINT ["dumb-init", "--", "/bin/bash", "/opt/monroe/myscript.sh"]
 		\end{verbatim}}
-	
+
 		This example will copy the files in the \identifier{files/} directory to the one you specify \emph{inside} the docker container (e.g., \identifier{/opt/monroe}).
-		
+
 		TIP: If you need to install additional packages in the container, be sure to clean any temporary files from the image. Also, notice that the Docker creation script analyses the contents of the container filesystem after every line in the .docker script is executed. That means that, even if you delete files at the end, Docker will create intermediate ``layers'' that will be downloaded and applied sequentially to build the final image of your container. Consider instead using one-liners such as the following:
 		{\VerbatimFont\begin{verbatim}
 		    RUN apt-get update && apt-get install -y vim && apt-get clean
@@ -392,13 +392,13 @@ Preparing a new container from \monroe{}'s base image is an easy process:
 		{\VerbatimFont\begin{verbatim}
 			#!/bin/bash
 			DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-			
+
 			CONTAINER=${DIR##*/}
-			
+
 			CONTAINERTAG=myuser/myrepo # --> Modify to your own dockerhub user/repo
-			
+
 			docker login && docker tag ${CONTAINER} ${CONTAINERTAG} && docker push ${CONTAINERTAG} && \
-			    echo "Finished uploading ${CONTAINERTAG}"					
+			    echo "Finished uploading ${CONTAINERTAG}"
 		\end{verbatim}}
 		During the development phase of your experiment, follow these steps to make your container accessible for the testing nodes:
 		\begin{itemize}
@@ -471,7 +471,7 @@ Preparing a new container from \monroe{}'s base image is an easy process:
 		The docker command line allows you to specify a mapping between a directory inside the docker image and one in the host system.
 		In this case, we have mapped \identifier{/monroe/results} from the container to \identifier{/run/shm/my\-results}.
 		This is useful if you are running the container locally in a normal PC for debugging purposes.
-		
+
 		\textbf{IMPORTANT:} This process shows how to build and run a container \emph{locally} in your workstation.
 		However, experimenters do not have direct access to the \monroe{} nodes.
 		Therefore, to execute your experiment \emph{in} a \monroe{} node, you will follow the process just up to the \identifier{sudo ./push.sh} step and then use the web interface to upload and schedule the container into the nodes.
@@ -503,19 +503,19 @@ You should never pull repositories or download libraries from inside your experi
 Instead, modify the container configuration file as in the following example:
 {\VerbatimFont\begin{verbatim}
 			FROM monroe/base
-			
+
 			MAINTAINER your-email-address
-			
+
 			RUN apt-get update && apt-get install -y \
 			    python \
 			    python-pip \
 			    traceroute \
 			    && apt-get clean
 			RUN pip install pygame
-			
+
 			RUN mkdir -p /opt/yourname
 			COPY files/* /opt/yourname/
-			
+
 			#Default cmd to run
 			ENTRYPOINT ["dumb-init", "--", "/bin/bash", "/opt/yourname/myscript.sh"]
 \end{verbatim}}
@@ -539,7 +539,7 @@ For example, assuming that you have a basic container that simply waits when run
 \end{verbatim}}
 For easier reference, Table~\ref{tab:installedPackages} in Appendix~\ref{app:installedPackages} gives a detailed listing of packages available in \identifier{monroe/base} at the time of writing this text.
 \subsubsection{Band Locking}
-This option allows experimenters to lock the monroe node modems in LTE, 3G etc...   
+This option allows experimenters to lock the monroe node modems in LTE, 3G etc...
 by sending a PUT request from within a \textbf{container} using different lock types see Table~\ref{tab:lock} using curl similar to:
 {\VerbatimFont\begin{verbatim}
 	curl -X POST -d '{"lockType": 16}' http://172.17.0.1:80/modems/1/lock
@@ -549,7 +549,7 @@ Where "lockType": 16 indicates that it has been locked on 4G LTE and modems/\#/l
 {\VerbatimFont\begin{verbatim}
 	curl -s  http://172.17.0.1:80/modems/ | jq
 	[
-	{  
+	{
 	"ispName": "YOIGO",
 	"apnId": 77,
 	"apn": "internet",
@@ -569,25 +569,48 @@ Where "lockType": 16 indicates that it has been locked on 4G LTE and modems/\#/l
 	"iccid": "8934041514050773954",
 	"usb_vid": 4505
 	}
-	] 
+	]
 	\end{verbatim}}
 
 \begin{table}[]
 	\centering
 	\begin{tabular}{l|l}
 		\hline
-		
+
 		\textbf{LockType} & \textbf{DESCRIPTION} \\ \hline
-	
+
 		4 & Lock in MODE\_GSM \\ \hline
 		8 & Lock in MODE\_UMTS \\ \hline
 		16 & Lock in MODE\_LTE \\ \hline
-		
-		
+
+
 	\end{tabular}
 	\caption{LockTypes}
 	\label{tab:lock}
 \end{table}
+\subsubsection{Virtual Machine support}
+This option allows experimenters to use a different kernel or kernel options than installed on the \monroe{} node.
+To develop and deploy the experiments to the nodes we utyilize the docker container system. The container will on the node be converted to a virtual machine (\identifier{kvm}) and executed in a environment similar to a regular experiment.
+
+A example on how to configure and run a virtual machine experiment can be found here: \url{https://github.com/MONROE-PROJECT/Experiments/tree/master/experiments/nodetest}~.
+
+
+There are a couple of things to consider when deploying a experiment as a virtual machine;
+\begin{itemize*}
+    \item Base your docker image on \identifier{monroe/base:virt}
+    \begin{itemize*}
+        \item \identifier{monroe/base:virt} is a stripped down version of \identifier{monroe/base}: \url{https://github.com/MONROE-PROJECT/Experiments/blob/master/monroe_base/10_virt_docker}~.
+    \end{itemize*}
+    \item Include a kernel
+    \item Set the parameter \identifier{"vm":1} when scheduling the experiment.
+	\item Be very conservative on diskspace, eg installed packages etc.
+	\item Define as the last line of /opt/monroe/user-experiment.sh how to start your experiment.
+	\item Issue poweroff as last command of the experiment script.
+\end{itemize*}
+%
+%\subsubsection{NEAT support}
+%This option allows experimenters to route all traffic through a NEAT proxy %\url{https://github.com/NEAT-project/neat}~. To enable this feature set the %parameter \identifier{"neat":1} when scheduling the experiment. In a future %version of the NEAT support, options to chnage policy will be added.
+
 \subsection{Optional interactive debugging}
 To speed up the process of debugging experiments in the nodes, three debugging paths are provided.
 
@@ -613,12 +636,12 @@ A small number of nodes are available through the user interface so that experim
 The certification process consists of the following steps:
 \begin{enumerate}
 	\item The experimenter contacts their patron to inform them that a new version of their experiment is ready for certification.
-	
+
 	\item The experimenter has to provide a summary of the experiment, i.e., overall purpose, design and implementation (reasonable length around \num{0.5} to \num{1} A4~pages).
-	
+
 	\item The container should be submitted as source (i.e., build scripts for Docker, not tools source code) for easy inspection by the patron.
 	Additionally, this will allow the \monroe{} administrators to update the containers when a new version of \identifier{monroe/base} is available.
-	
+
 	\item The patron, or the maintenance team, will then build (or pull) the container, tag it as \identifier{partnername/\allowbreak experimentname}, and push it to the deployed docker repository.
 \end{enumerate}
 
@@ -722,30 +745,30 @@ The procedure for other browsers and platforms should be similar.
 \begin{enumerate}
 	\item Go to your browser settings page:\\
 	\begin{center}\includegraphics[width=0.7\textwidth]{InstallCert01.png}\end{center}
-	
+
 	\item Display the advanced configuration settings:\\
 	\begin{center}\includegraphics[width=0.7\textwidth]{InstallCert02.png}\end{center}
-	
+
 	\item Go to the section labeled ``HTTPS/SSL'' and click the button ``Manage certificates...'':\\
 	\begin{center}\includegraphics[width=0.7\textwidth]{InstallCert03.png}\end{center}
-	
+
 	\item The dialog box for managing your certificates will be displayed. Press the button ``Import...'' to import your certificate:\\
 	\begin{center}\includegraphics[width=0.5\textwidth]{InstallCert04.png}\end{center}
-	
+
 	\item In the new dialog, click ``Next'':\\
 	\begin{center}\includegraphics[width=0.5\textwidth]{InstallCert05.png}\end{center}
-	
+
 	\item In the file-selection dialog that appears next, change the file type from ``X.509 Certificate (*,cer;*.crt)'' to ``Personal Information Exchange'':\\
 	\begin{center}\includegraphics[width=0.6\textwidth]{InstallCert06.png}\end{center}
-	
+
 	\item And select the file containing your certificate:\\
 	\begin{center}\includegraphics[width=0.6\textwidth]{InstallCert07.png}\end{center}
-	
+
 	\item In the next dialog box, enter your certificate password:\\
 	\begin{center}\centering\includegraphics[width=0.5\textwidth]{InstallCert08.png}\end{center}
-	
+
 	\item If the import is successful, your certificate will be imported to your ``Personal Store'' and you will be able to access the \monroe{} user interface by selecting it when prompted by your browser. Notice that you may still get a warning about the validity of the server certificate.
-	
+
 \end{enumerate}
 
 \FloatBarrier
@@ -813,7 +836,7 @@ Additionally, the user may specify the following restrictions (Figure~\ref{fig:n
 	\includegraphics[width=1.0\textwidth]{NewExperimentFilters.png}
 	\caption{Filters for node selection.}
 	\label{fig:newExperimentFilters}
-	
+
 \end{figure}
 
 \begin{figure}[tp]
@@ -844,26 +867,26 @@ Startup finished Tue Month  x xx:xx:xx UTC 20xx.
 Started allocator client
 JSON request: {"address":"xxx.xxx.xx.xx","ifname":"wlan0","addr_family":x,"cmd":0,"version":1}
 Sent 80 bytes
-Server: tas_socket Table: xxxxx Lease: xxxxxx Ifname: wlan0 Address: xxx.xxx.xx.xx Family: x 
+Server: tas_socket Table: xxxxx Lease: xxxxxx Ifname: wlan0 Address: xxx.xxx.xx.xx Family: x
 Table: xxxxx
 
 
 root@xxxxxxx:/# ifconfig
 eth0: flags=xx<UP,BROADCAST,RUNNING,MULTICAST> mtu 1500
- inet xxx.xx.x.x netmask xxx.xxx.xxx.x broadcast x.x.x.x 
- 
-lo: flags=xx<UP,LOOPBACK,RUNNING> mtu 65536 
- inet 127.0.0.1 netmask 255.0.0.0 
+ inet xxx.xx.x.x netmask xxx.xxx.xxx.x broadcast x.x.x.x
 
-op0: flags=xx<UP,BROADCAST,RUNNING,MULTICAST> mtu 1500 
- inet xxx.xx.x.x netmask xxx.xxx.xxx.xxx broadcast x.x.x.x 
- 
+lo: flags=xx<UP,LOOPBACK,RUNNING> mtu 65536
+ inet 127.0.0.1 netmask 255.0.0.0
+
+op0: flags=xx<UP,BROADCAST,RUNNING,MULTICAST> mtu 1500
+ inet xxx.xx.x.x netmask xxx.xxx.xxx.xxx broadcast x.x.x.x
+
 wlan0: flags=4xxx<UP,BROADCAST,MULTICAST>  mtu 1500
  inet xxx.xx.xx.xx  netmask xxx.xxx.xxx.xxx  broadcast x.x.x.x
 
 	\end{verbatim}
-Noting that the eduroam parameters are hidden parameters, but not encrypted and they are still stored in the scheduler database.	
-	
+Noting that the eduroam parameters are hidden parameters, but not encrypted and they are still stored in the scheduler database.
+
 
 
 \subsection{Experiment scheduling}
@@ -1045,15 +1068,15 @@ The tool has integrated help:
 {\VerbatimFont\begin{verbatim}
 $ monroe -h
  usage: monroe [-h] Command ...
- 
+
  Monroe Cli
- 
+
  optional arguments:
  -h, --help   show this help message and exit
- 
+
  Experiment:
  The following commands can be used to create and submit experiments
- 
+
  Command      Description
  create     Creates an experiment
  whoami     Displays MONROE user details
@@ -1220,15 +1243,15 @@ If the experimenter writes their own code:
 	\item Once this information is obtained, use the desired interface and store the results with the corresponding ICCID or operator name.
 	\item Should the interface disappear (\identifier{ENODEV} error, ``no such device''), start over at 2.
 \end{enumerate*}
-	
+
 When using an external tool that does not handle \identifier{ENODEV} (e.g., ``fping''), replace step 4 by:
 \begin{itemize*}
 	\item Monitor the metadata for a \identifier{MODEM.*.CONNECTIVITY} message indicating that connectivity was lost, or monitor the interface list to check if the device disappears. Upon either event, start over at 2.
 \end{itemize*}
-	
+
 Experimenters should take notice that an interface may not only go down, but it may actually disappear from the list of available interfaces (e.g., if the modem has to be restarted).
-Even if it reappears soon after, any existing network connections on the old interface will fail with \identifier{ENODEV}. 
-	
+Even if it reappears soon after, any existing network connections on the old interface will fail with \identifier{ENODEV}.
+
 It is also possible to skip steps 1 and 2 when reconnecting to an interface after a failure, as the interface name corresponding to the desired operator is already known.
 It is still necessary to keep retrying to connect to the interface, until it comes up.
 
@@ -1251,7 +1274,7 @@ Several options are available to bind an experiment to an interface.
 		curl --interface ...
 		\end{verbatim}
 	}
-	
+
 	\item Explicit binding in the source code.
 	\begin{itemize*}
 		\item In C:
@@ -1273,11 +1296,11 @@ Several options are available to bind an experiment to an interface.
 			\end{verbatim}
 		}
 	\end{itemize*}
-	
+
 	\item Library overloading the \identifier{bind()} and \identifier{connect()} functions through \identifier{LD\_PRELOAD}:
-	
+
 	\url{http://www.ryde.net/code/bind.c.txt}
-	
+
 	\item Changing the default route:
 	{
 		\VerbatimFont
@@ -1311,7 +1334,7 @@ Therefore, experimenters may perform an off-line correlations of events in their
 	\begin{itemize*}
 		\item Verify that node temperature is/was within limits.
 		\item Verify that system load is/was below threshold.
-	\end{itemize*}	
+	\end{itemize*}
 \end{itemize*}
 
 The metadata is broadcast locally using ZeroMQ.
@@ -1344,9 +1367,9 @@ The following example shows how to create an application that executes a ping to
 	\item The ``ping'' formatter subscribes to a zmq socket and topic:
 	\begin{itemize*}
 		\item Socket : 'tcp://172.17.0.1:5556'
-		\item Topic : 'MONROE.META.DEVICE.GPS' 
+		\item Topic : 'MONROE.META.DEVICE.GPS'
 	\end{itemize*}
-	\item Cache the GPS position received. 
+	\item Cache the GPS position received.
 	\item Wait for output from the ping command (stdin).
 	\item Store experiment information including the GPS position:
 	\begin{itemize*}
@@ -1394,7 +1417,7 @@ while line:
   line = sys.stdin.readline()
 \end{verbatim}
 }
- 
+
 %------------------------------------------------------------%
 \subsubsection{Metadata information}
 
@@ -1430,7 +1453,7 @@ The following and some examples of the information received in the metadata stre
 	\texttt{\footnotesize\{"\textbf{DataId}": "MONROE.META.NODE.SENSOR", "\textbf{SequenceNumber}": 48460, "\textbf{DataVersion}": 1,\\
 		"\textbf{Timestamp}": 1465786926.123456, "\textbf{apps}": "3632746496", "\textbf{NodeId}": "54", "\textbf{free}": "483119104", \\
 		"\textbf{swap}": "0"\}}
-	
+
 	\item Modem events:\\
 	\texttt{\footnotesize\{"\textbf{DataId}": "MONROE.META.DEVICE.MODEM", "\textbf{InterfaceName}": "usb2", "\textbf{CID}": 72209509,\\
 		"\textbf{DeviceState}": 3, "\textbf{SequenceNumber}": 33548, "\textbf{DataVersion}": 1, \\
@@ -1440,13 +1463,13 @@ The following and some examples of the information received in the metadata stre
 		"\textbf{RSRQ}": -8, "\textbf{RSRP}": -85, "\textbf{LAC}": 28014, "\textbf{Frequency}": 1800, \\
 		"\textbf{InternalIPAddress}": "192.168.0.153", "\textbf{Operator}": "YOIGO", \\
 		"\textbf{ICCID}": "8934041514050774002", "\textbf{IMSI}": "214040113950108"\}}
-	
+
 	\item GPS:\\
 	\texttt{\footnotesize\{"\textbf{DataId}": "MONROE.META.DEVICE.GPS", "\textbf{SequenceNumber}": 34164, "\textbf{DataVersion}": 1, \\
 		"\textbf{Timestamp}": 1465805718.123456, "\textbf{Altitude}": -1455.900024, "\textbf{NodeId}": "63", \\
 		"\textbf{Longitude}": -3.777019, "\textbf{NMEA}":\\ "\$GPGGA,081518.0,4020.002011,N,00346.621107,W,1,02,500.0,-1455.9,M,53.0,M,,*5D\textbackslash{}r\textbackslash{}n",\\
 		"\textbf{SatelliteCount}": 2, "\textbf{Latitude}": 40.333366\}}
-	
+
 \end{itemize}
 
 %------------------------------------------------------------%
@@ -1486,7 +1509,7 @@ Metadata and internal experiment results follow a JSON structure, as detailed in
 %------------------------------------------------------------%
 \subsection{Tstat at run-time}
 \label{subsec:tsattRunTime}
-The Tstat (\url{http://www.tstat.polito.it/}) \textbf{runs} on all nodes in the mPlane container as one of the basic MONROE containers. The Tstat is a passive probe able to provide several insight on the traffic patterns at both the network and the transport levels. The Tstat generates two different types of logs. 
+The Tstat (\url{http://www.tstat.polito.it/}) \textbf{runs} on all nodes in the mPlane container as one of the basic MONROE containers. The Tstat is a passive probe able to provide several insight on the traffic patterns at both the network and the transport levels. The Tstat generates two different types of logs.
 
 \subsubsection{Tstat Round Robin Database}
 
@@ -1497,8 +1520,8 @@ The Tstat (\url{http://www.tstat.polito.it/}) \textbf{runs} on all nodes in the 
 	\label{fig:TstatRRDGUI}
 \end{figure}
 
-The RRD (Round Robin Database) logs is an average of samples of each packet in 5 minutes, it imposes at least 5 minutes delay to visualize RRDs. The detail description of the RRD logs is available on Tstat documentation(\url{http://tstat.polito.it/HOWTO.shtml#RRD}). RRD are available via the (\url{http://monroe-repository.polito.it:8080/}) and the Graphite GUI provides some tool to present RRD logs and save the interested plots. Fig.~\ref{fig:TstatRRDGUI} shows the bit rate of the ICMP packet for the node \#38 on interface \textit{op0} over the last 24 hours. 
-There is possibility to create a dashboard to monitor the experiments and interfaces' status. Fig.~\ref{fig:TStatGraphitedashboard} illustrates an example of saved dashboard to monitor the volume of traffic on one node. 
+The RRD (Round Robin Database) logs is an average of samples of each packet in 5 minutes, it imposes at least 5 minutes delay to visualize RRDs. The detail description of the RRD logs is available on Tstat documentation(\url{http://tstat.polito.it/HOWTO.shtml#RRD}). RRD are available via the (\url{http://monroe-repository.polito.it:8080/}) and the Graphite GUI provides some tool to present RRD logs and save the interested plots. Fig.~\ref{fig:TstatRRDGUI} shows the bit rate of the ICMP packet for the node \#38 on interface \textit{op0} over the last 24 hours.
+There is possibility to create a dashboard to monitor the experiments and interfaces' status. Fig.~\ref{fig:TStatGraphitedashboard} illustrates an example of saved dashboard to monitor the volume of traffic on one node.
 
 \begin{figure}[h]
 	\centering
@@ -1527,11 +1550,11 @@ In MONROE, the Tstat configure to generate 4 different logs as following:
 	\end{tabular}
 	\end{center}
 \end{table}
-    
-Logs are available in two ways, 
+
+Logs are available in two ways,
 \begin{itemize}
 \item[1.] Real time access on the node, logs for the last three generated are shared with MONROE experimenters on the "/monroe/tstat", it helps the MONROE users to use passive traces collected by Tstat during their experiment. The three logs can cover at most the last three hours.
-\item[2.] On demand, all logs are imported into MONROE database for all node. The schema of the tables are available on github (\url{https://github.com/MONROE-PROJECT/Database/blob/master/db_schema.cql}). Three columns, (NodeId,Iccid,DataId) added to each table bring the possibility to join with metadata and collected data. 
+\item[2.] On demand, all logs are imported into MONROE database for all node. The schema of the tables are available on github (\url{https://github.com/MONROE-PROJECT/Database/blob/master/db_schema.cql}). Three columns, (NodeId,Iccid,DataId) added to each table bring the possibility to join with metadata and collected data.
 \end{itemize}
 
 It is recommended to check the description of the logs on (\url{http://tstat.polito.it/measure.shtml#LOG}).  Tables~\ref{tab:TStattcp},~\ref{tab:TStattcprtt} and~\ref{tab:TStathttp}  present the table describing of some interesting metrics in tcp and http logs.
@@ -1762,14 +1785,14 @@ The configuration values can be supplied as a JSON string in the ``Additional op
 This allows to specify a different set of parameters for each execution of the experiment.
 
 The values of the configuration parameters can be read by the experiment from the \identifier{/monroe/config} file.
-The following text shows a configuration file with %per-container and 
+The following text shows a configuration file with %per-container and
 per-execution (``additional options'' field) options:%
 \footnote{Entries in the \identifier{/monroe/config} file may appear in different order.}
 
 {\VerbatimFont
 	\begin{verbatim}
 	{
-	"stop": 1486653420, 
+	"stop": 1486653420,
 	"start": 1486653120,
 	"traffic": 1048576,
 	"script": "mikepeon/mike-depurar",
@@ -1903,16 +1926,16 @@ This process reads entries from the shared data structures, runs the experiment 
 \begin{itemize*}
 	\item List running containers:
 	\begin{verbatim}docker ps\end{verbatim}
-	
+
 	\item Debug shell:
 	\begin{verbatim}docker run -i -t --entrypoint bash --net=host template\end{verbatim}
-	
+
 	\item Normal execution with output to \identifier{stdout}:
 	\begin{verbatim}docker run -i -t --net=host template\end{verbatim}
-	
+
 	\item Attach to a running container (with shell):
 	\begin{verbatim}docker exec -i -t [container runtime name] bash\end{verbatim}
-	
+
 	\item Get container logs (\identifier{stderr} and \identifier{stdout}):
 	\begin{verbatim}docker logs [container runtime name]\end{verbatim}
 \end{itemize*}
@@ -2115,19 +2138,19 @@ The experiment will produce a single-line JSON object similar to the following o
 {\VerbatimFont
 	\begin{verbatim}
 	[2017-02-07 09:53:27.190338] Hello: Default config {
-	"metadata_topic": "MONROE.META", 
-	"nodeid": "fake.nodeid", 
-	"nr_of_messages": 3, 
-	"resultdir": "/monroe/results/", 
-	"verbosity": 2, 
+	"metadata_topic": "MONROE.META",
+	"nodeid": "fake.nodeid",
+	"nr_of_messages": 3,
+	"resultdir": "/monroe/results/",
+	"verbosity": 2,
 	"zmqport": "tcp://172.17.0.1:5556"
 	}
 	[2017-02-07 09:53:27.20000] Hello: Start recording messages with configuration {
-	"metadata_topic": "MONROE.META", 
-	"nodeid": "fake.nodeid", 
-	"nr_of_messages": 3, 
-	"resultdir": "/monroe/results/", 
-	"verbosity": 2, 
+	"metadata_topic": "MONROE.META",
+	"nodeid": "fake.nodeid",
+	"nr_of_messages": 3,
+	"resultdir": "/monroe/results/",
+	"verbosity": 2,
 	"zmqport": "tcp://172.17.0.1:5556"
 	}
 	[[2017-02-07 09:53:27.30000] Received message 1 with topic : MONROE.META.NODE.SENSOR
@@ -2186,25 +2209,25 @@ The experiment output is a text file:
 	\begin{verbatim}
 	root@b59e69a56297:/# paris-traceroute -O op2 -C 192.168.1.127 8.8.8.8
 	traceroute [(192.168.1.127:33456) -> (8.8.8.8:33457)], protocol udp, algo hopbyhop, duration 18 s
-	1  192.168.1.1 (192.168.1.1)  2.946 ms   0.553 ms   0.559 ms 
+	1  192.168.1.1 (192.168.1.1)  2.946 ms   0.553 ms   0.559 ms
 	2  * * *
-	3  10.133.17.29 (10.133.17.29)  83.259 ms   136.577 ms   82.050 ms 
-	4  10.133.17.14 (10.133.17.14)  78.783 ms   131.510 ms   79.231 ms 
-	5  10.133.17.236 (10.133.17.236)  84.243 ms   133.024 ms   79.785 ms 
-	6  10.133.17.3 (10.133.17.3)  81.543 ms   139.381 ms   100.263 ms 
-	7  83.224.40.186 (83.224.40.186)  89.319 ms   188.926 ms   179.963 ms 
+	3  10.133.17.29 (10.133.17.29)  83.259 ms   136.577 ms   82.050 ms
+	4  10.133.17.14 (10.133.17.14)  78.783 ms   131.510 ms   79.231 ms
+	5  10.133.17.236 (10.133.17.236)  84.243 ms   133.024 ms   79.785 ms
+	6  10.133.17.3 (10.133.17.3)  81.543 ms   139.381 ms   100.263 ms
+	7  83.224.40.186 (83.224.40.186)  89.319 ms   188.926 ms   179.963 ms
 	MPLS Label 24703 TTL=254
-	8  83.224.40.185 (83.224.40.185)  82.710 ms   172.438 ms   147.020 ms 
-	9  85.205.14.105 (85.205.14.105)  85.179 ms   137.514 ms   125.869 ms 
-	10  72.14.223.169 (72.14.223.169)  85.609 ms   137.363 ms   118.063 ms 
-	11  216.239.47.128 (216.239.47.128)  79.567 ms   146.356 ms   145.285 ms 
-	12  209.85.243.33 (209.85.243.33)  129.615 ms   198.938 ms   269.407 ms 
+	8  83.224.40.185 (83.224.40.185)  82.710 ms   172.438 ms   147.020 ms
+	9  85.205.14.105 (85.205.14.105)  85.179 ms   137.514 ms   125.869 ms
+	10  72.14.223.169 (72.14.223.169)  85.609 ms   137.363 ms   118.063 ms
+	11  216.239.47.128 (216.239.47.128)  79.567 ms   146.356 ms   145.285 ms
+	12  209.85.243.33 (209.85.243.33)  129.615 ms   198.938 ms   269.407 ms
 	MPLS Label 568892 TTL=1
-	13  64.233.174.143 (64.233.174.143)  108.599 ms   185.810 ms   246.661 ms 
+	13  64.233.174.143 (64.233.174.143)  108.599 ms   185.810 ms   246.661 ms
 	MPLS Label 692130 TTL=1
-	14  108.170.234.47 (108.170.234.47)  111.645 ms   825.615 ms   1424.942 ms 
+	14  108.170.234.47 (108.170.234.47)  111.645 ms   825.615 ms   1424.942 ms
 	15  * * *
-	16  google-public-dns-a.google.com (8.8.8.8)  103.087 ms !T2   166.279 ms !T2   224.649 ms !T2 
+	16  google-public-dns-a.google.com (8.8.8.8)  103.087 ms !T2   166.279 ms !T2   224.649 ms !T2
 	\end{verbatim}
 }
 
@@ -2421,10 +2444,10 @@ The experiment will produce a single-line JSON object similar to the following:
 	"RSSI" : -49,
 	"SequenceNumber" : 1,
 	"Timestamp" : 1479312368.633218,
-	"bw" : "48.41 38.98 36.44 50.00 30.20 45.21 47.02 37.89 44.37 28.90 25.91 38.57 48.74 
-	39.94 43.37 37.94 43.81 39.60 52.00 47.55 48.20 34.85 41.44 47.60 57.26 46.11 
-	45.66 52.04 37.43 49.67 33.56 50.35 41.11 51.63 45.33 104.01 45.73 49.95 50.37 
-	38.57 29.45 50.95 54.95 45.42 47.13 34.30 46.10 103.68 79.75 45.72 52.03 30.38 
+	"bw" : "48.41 38.98 36.44 50.00 30.20 45.21 47.02 37.89 44.37 28.90 25.91 38.57 48.74
+	39.94 43.37 37.94 43.81 39.60 52.00 47.55 48.20 34.85 41.44 47.60 57.26 46.11
+	45.66 52.04 37.43 49.67 33.56 50.35 41.11 51.63 45.33 104.01 45.73 49.95 50.37
+	38.57 29.45 50.95 54.95 45.42 47.13 34.30 46.10 103.68 79.75 45.72 52.03 30.38
 	50.21 36.96 71.51 54.66 39.26 44.12 45.18 39.93"
 	}
 	\end{verbatim}}
@@ -2455,10 +2478,10 @@ An example JSON string that can be used with this container as additional option
 
 {\VerbatimFont
 	\begin{verbatim}
-	"interfaces": ["op0", "op1", "op2"], "targets": ["www.ntua.gr", "www.uc3m.es", "Google.com", 
-	"Facebook.com", "Youtube.com", "Baidu.com", "Yahoo.com", "Amazon.com", "Wikipedia.org", 
-	"audio-ec.spotify.com", "mme.whatsapp.net", "sync.liverail.com", "ds.serving-sys.com", 
-	"instagramstatic-a.akamaihd.net"], "maxNumberOfTotalTracerouteInstances": 5, 
+	"interfaces": ["op0", "op1", "op2"], "targets": ["www.ntua.gr", "www.uc3m.es", "Google.com",
+	"Facebook.com", "Youtube.com", "Baidu.com", "Yahoo.com", "Amazon.com", "Wikipedia.org",
+	"audio-ec.spotify.com", "mme.whatsapp.net", "sync.liverail.com", "ds.serving-sys.com",
+	"instagramstatic-a.akamaihd.net"], "maxNumberOfTotalTracerouteInstances": 5,
 	"executionMode": "parallel"
 	\end{verbatim}}
 
@@ -2467,7 +2490,7 @@ An example JSON string that can be used with this container as additional option
 \subsection{Other containers in the repositories}
 
 Our public repositories contain the source code for other Docker containers that perform varied tasks in the nodes.
-Although they are not intended as examples, users can take a look into them to gain a deeper understanding of the platform configuration. 
+Although they are not intended as examples, users can take a look into them to gain a deeper understanding of the platform configuration.
 
 \subsubsection{Container: metadata-subscriber}
 
@@ -2478,7 +2501,7 @@ All messages are updated with NodeId, but are otherwise saved verbatim as a JSON
 \subsubsection{Container: tunnelbox-server}
 
 This container acts as an SSH reverese tunnel endpoint that clients can use to directly connect to their experiment containers (on any \monroe{} node).
-The purpose is to provide experimenters an interactive way of accessing an experiment running on a real \monroe{} node during development or debugging. 
+The purpose is to provide experimenters an interactive way of accessing an experiment running on a real \monroe{} node during development or debugging.
 The client has to supply its own public SSH key to the experiment container using the web user interface.
 The web user interface provides further instructions (SSH command line) to connect to the experiment container using the provided key.
 
@@ -2506,7 +2529,7 @@ Some of the packages moved from monroe\_base to monroe\_base:web such as:
 \section{List of known bugs and issues}
 
 \begin{itemize}
-	
+
 	\item In general, Firefox does not render the date-time picker correctly. You will have to either enter the dates and times manually or use Chrome.
 	\item Container deployment can take several minutes, particularly for nodes without an Ethernet management connection (e.g., mobile nodes in trains or buses). When scheduling an experiment, the user has to take into account the time needed for the deployment. The system will not automatically take care of this at this moment.
 	\item Similarly, the button ``Check availability'' returns the earliest available slot. However, it does not account for the time needed to deploy the container. The user must manually account for that.
@@ -2912,7 +2935,7 @@ sed	&	4.2.2-4+b1	&	amd64	&	The GNU sed stream editor	\\
 sensible-utils	&	0.0.9	&	all	&	Utilities for sensible alternative selection	\\
 shared-mime-info	&	1.3-1	&	amd64	&	FreeDesktop.org shared MIME database and spec	\\
 smokeping	&	2.6.9-1+deb8u1	&	all	&	latency logging and graphing system	\\
-speedtest-cli	&	1.0.0	&	all	&	
+speedtest-cli	&	1.0.0	&	all	&
 Command line interface for testing internet bandwidth using speedtest.net	\\
 startpar	&	0.59-3	&	amd64	&	run processes in parallel and multiplex their output	\\
 supervisor	&	3.0r1-1	&	all	&	A system for controlling process state	\\
@@ -3019,7 +3042,7 @@ It was then set to \num{2} to signal the transition in timestamps that most tabl
 		Timestamp & Entry timestamp (in seconds since UNIX epoch with microsecond precision).\\
 		DataId & Metadata topic.\\
 		DataVersion & Last version is \num{2}.\\
-		SequenceNumber & Monotonically increasing message counter.\\		
+		SequenceNumber & Monotonically increasing message counter.\\
 		Longitude & Decimal degrees (WGS84).\\
 		Latitude & Decimal degrees (WGS84).\\
 		Altitude & Meters AMSL.\\
@@ -3071,16 +3094,16 @@ It was then set to \num{2} to signal the transition in timestamps that most tabl
 		DataId                  & Metadata topic.\\
 		DataVersion             & Last version is \num{2}.\\
 		SequenceNumber          & Monotonically increasing message counter.\\
-		Running                 & Comma separated list of experiment GUIDs.\\		
+		Running                 & Comma separated list of experiment GUIDs.\\
 		Cpu                     & CPU temperature (\si{\degreeCelsius}).\\
 %		Modems                  & Modem info service (HTTP Status code).\\
 %		Dlb                     & Load balancer info service (HTTP status code).\\
-%		UsbMonitor              & USB hub info service (HTTP status code).\\		
+%		UsbMonitor              & USB hub info service (HTTP status code).\\
 		Id                      & Session number (boot counter).\\
 		Start                   & Start time (Unix timestamp).\\
 		Current                 & Uptime (seconds since start of the session).\\
 		Total                   & Uptime (cumulative uptime of the node over all sessions). \\
-		Percent                 & Uptime (percent of uptime vs. total lifetime of the node). \\		
+		Percent                 & Uptime (percent of uptime vs. total lifetime of the node). \\
 		System                  & CPU time spent by the kernel in system activities.\\
 		Steal                   & The time that a virtual CPU had runnable tasks, but the virtual CPU itself was not running.\\
 		Guest                   & The time spent running a virtual CPU for guest operating systems under the control of the Linux kernel.\\
@@ -3089,10 +3112,10 @@ It was then set to \num{2} to signal the transition in timestamps that most tabl
 		Nice                    & CPU time spent by nice(1)d programs.\\
 		Idle                    & Idle CPU time.\\
 		User                    & CPU time spent by normal programs and daemons.\\
-		SoftIrq                 & CPU time spent handling ``batched'' interrupts.\\		
+		SoftIrq                 & CPU time spent handling ``batched'' interrupts.\\
 		Apps                    & Memory used by user-space applications.\\
 		Free                    & Unused memory.\\
-		Swap                    & Swap space used.\\		
+		Swap                    & Swap space used.\\
 		usb0                    & Battery level for MiFi at USB0 (0-100, -1 for inactive). \\
 		usb0charging            & 1 if USB0 battery is charging, 0 otherwise. \\
 		usb1                    & Battery level for MiFi at USB1 (0-100, -1 for inactive). \\
@@ -3118,7 +3141,7 @@ It was then set to \num{2} to signal the transition in timestamps that most tabl
 		Timestamp           & Entry timestamp (in seconds since UNIX epoch with microsecond precision).\\
 		DataId              & Metadata topic.\\
 		DataVersion         & Last version is \num{2}.\\
-		SequenceNumber      & Monotonically increasing message counter.\\		
+		SequenceNumber      & Monotonically increasing message counter.\\
 		EventType           & Watchdog.Failed: The system watchdog detected an error symptom.\\
 		                    & Watchdog.Repaired: The system watchdog resolved the issue.\\
    		                    & Watchdog.Status: Periodic status messages from the watchdog.\\
@@ -3155,7 +3178,7 @@ It was then set to \num{2} to signal the transition in timestamps that most tabl
 		DataId          & Metadata topic.\\
 		DataVersion     & Last version is \num{2}.\\
 		Operator        & Operator name as reported by the network for the interface in which the experiment was run.\\
-		Iccid           & Internationally defined integrated circuit card identifier of the SIM card.\\		
+		Iccid           & Internationally defined integrated circuit card identifier of the SIM card.\\
 		Bytes           & Size of the ping message payload.\\
 		Host            & IP of the destination host of the ping probe.\\
 		Rtt             & Round-Trip-Time of the ping probe.\\
@@ -3179,9 +3202,9 @@ It was then set to \num{2} to signal the transition in timestamps that most tabl
 		Timestamp       & Entry timestamp (in seconds since UNIX epoch with microsecond precision).\\
 		SequenceNumber  & Monotonically increasing message counter.\\
 		DataId          & Metadata topic.\\
-		DataVersion     & Last version is \num{2}.\\		
+		DataVersion     & Last version is \num{2}.\\
 		Operator        & Operator name as reported by the network for the interface in which the experiment was run.\\
-		Iccid           & Internationally defined integrated circuit card identifier of the SIM card.\\		
+		Iccid           & Internationally defined integrated circuit card identifier of the SIM card.\\
 		TotalTime       & Total experiment execution time (in fractional seconds).\\
 		Bytes           & Total number of bytes downloaded.\\
 		SetupTime       & Time required to set up the HTTP connection.\\
@@ -3205,17 +3228,17 @@ Before being able to access Windows (host) folders from a container, the drive h
 \begin{enumerate}
 	\item Access the Docker settings dialog from its taskbar icon:
 	\textbf{\begin{center}\includegraphics[width=0.3\textwidth]{mapContainerFolderWindows01.png}\end{center}}
-	
+
 	\item From the tab ``Shared Drives'', select the drive you want to make available to the containers, e.g., ``C'':
 	\textbf{\begin{center}\includegraphics[width=0.6\textwidth]{mapContainerFolderWindows02.png}\end{center}}
-	
+
 	\item You will be prompted for login credentials to access the files:
 	\textbf{\begin{center}\includegraphics[width=0.6\textwidth]{mapContainerFolderWindows03.png}\end{center}}
-	
+
 	\item Start the container mounting the desired folder:
 	{\VerbatimFont\begin{verbatim}$ docker run -v c:/Users/Dell/myresults:/data container_name ls /data\end{verbatim}}
 	This command executes \identifier{ls /data} inside an instance of the container ``container\_name,'' after mounting ``\identifier{C:/Users/Dell/myresults/}'' into that path.
-	
+
 	\item The folder can be accessed normally from Windows and will reflect changes to any files automatically.
 	\textbf{\begin{center}\includegraphics[width=0.6\textwidth]{mapContainerFolderWindows04.png}\end{center}}
 \end{enumerate}
