@@ -607,9 +607,9 @@ There are a couple of things to consider when deploying a experiment as a virtua
 	\item Define as the last line of /opt/monroe/user-experiment.sh how to start your experiment.
 	\item Issue poweroff as last command of the experiment script.
 \end{itemize*}
-%
-%\subsubsection{NEAT support}
-%This option allows experimenters to route all traffic through a NEAT proxy %\url{https://github.com/NEAT-project/neat}~. To enable this feature set the %parameter \identifier{"neat":1} when scheduling the experiment. In a future %version of the NEAT support, options to chnage policy will be added.
+
+\subsubsection{NEAT support}
+This option allows experimenters to route all TCP traffic through a NEAT proxy \url{https://github.com/NEAT-project/neat}~. To enable this feature set the parameter \identifier{"neat":1} when scheduling the experiment. The NEAT rest api can be reached from inside a experiment container on url \url{172.17.0.1:45888}, eg \url{172.17.0.1:45888/pib} and \url{172.17.0.1:45888/cib}.
 
 \subsection{Optional interactive debugging}
 To speed up the process of debugging experiments in the nodes, three debugging paths are provided.
